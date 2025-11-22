@@ -1,33 +1,33 @@
 <div class="chat-wrapper">
-
-  <div class="messages"  #scrollContainer>
-    <div
-      *ngFor="let m of messages()"
-      class="msg"
-      [class.ai]="m.sender === 'ai'"
-      [class.user]="m.sender === 'user'"
-    >
-            <!-- USER: testo normale -->
-      <div *ngIf="m.sender === 'user'">
-        {{ m.text }}
-      </div>
-
-      <!-- AI: testo renderizzato come Markdown -->
-      <markdown
-        *ngIf="m.sender === 'ai'"
-        [data]="m.text"
-      ></markdown>
+  
+  <div class="messages" #scrollContainer>
+    <div *ngFor="let msg of messages()" 
+         class="msg" 
+         [ngClass]="{'user': msg.sender === 'user', 'ai': msg.sender === 'ai'}">
+      
+      <markdown *ngIf="msg.sender === 'ai'" [data]="msg.text" class="markdown"></markdown>
+      <span *ngIf="msg.sender === 'user'">{{ msg.text }}</span>
+      
     </div>
   </div>
 
   <div class="input-box">
-    <input
-      placeholder="Scrivi un messaggio..."
-      [value]="userInput()"
-      (input)="userInput.set($any($event.target).value)"
-      (keyup.enter)="sendMessage()"
-    />
-    <button (click)="sendMessage()">➤</button>
+    <div class="input-container">
+      <input 
+        type="text" 
+        [disabled]="isLoading()"
+        [(ngModel)]="userInput" 
+        (keydown.enter)="sendMessage()"
+        placeholder="Scrivi un messaggio a LipariGPT..." 
+      />
+      
+      <button (click)="sendMessage()" [disabled]="!userInput() || isLoading()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="19" x2="12" y2="5"></line>
+          <polyline points="5 12 12 5 19 12"></polyline>
+        </svg>
+      </button>
+    </div>
   </div>
 
 </div>

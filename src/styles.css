@@ -1,8 +1,122 @@
 html, body {
   margin: 0;
   padding: 0;
-  background: #121212;
   color: #e6e6e6;
   height: 100%;
   font-family: system-ui, sans-serif;
+}
+
+/* ============================
+   🎨 GLOBAL THEME (logo-based)
+   ============================ */
+:root {
+  /* Background */
+  --bg-app: #000000;
+  --bg-panel: #0d0d0d;
+
+  /* Chat bubbles */
+  --bubble-ai: transparent;
+  --bubble-user: #101820;
+
+  /* Text */
+  --text-primary: #e6f0ff;
+  --text-secondary: #9ab3ff;
+
+  /* Input */
+  --input-bg: #0d1326;
+  --border-subtle: #1a2440;
+  --accent-glow: rgba(47, 93, 251, 0.4);
+
+  /* Brand (from logo) */
+  --brand-blue: #2F5DFB;
+  --brand-green: #4DD27F;
+  --brand-lime: #A0FF28;
+}
+
+/* ============================
+   📝 MARKDOWN STYLES
+   ============================ */
+.markdown {
+  font-size: 16px;
+}
+
+.markdown p {
+  margin-bottom: 1em;
+}
+
+/* Inline code */
+.markdown code:not(pre code) {
+  background: rgba(255,255,255,0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.9em;
+  color: #ff7b72;
+}
+
+/* Code blocks */
+.markdown pre {
+  background: #0b0f1a;
+  padding: 16px;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 16px 0;
+  border-left: 4px solid var(--brand-blue);
+}
+
+.markdown pre code {
+  font-family: 'Fira Code', monospace;
+  color: #d0e0ff;
+  font-size: 14px;
+}
+
+/* Lists */
+.markdown ul, .markdown ol {
+  margin-left: 20px;
+  margin-bottom: 1em;
+}
+
+.markdown li {
+  margin-bottom: 6px;
+}
+
+/* TABLES */
+.markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 14px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #333;
+}
+
+/* Header */
+.markdown th {
+  background: var(--brand-blue);
+  color: #fff;
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+}
+
+/* Cells */
+.markdown td {
+  padding: 12px;
+  background: #ffffff;
+  color: #000000;
+  border-top: 1px solid #ddd;
+}
+
+/* Hover */
+.markdown tr:hover td {
+  background: #eef3ff;
+}
+
+.markdown img {
+  max-width: 600px;
+  height: auto;
+  border-radius: 8px;
+  display: block;
+  margin: 0 auto;
 }
