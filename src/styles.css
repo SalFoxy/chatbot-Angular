@@ -1,84 +1,89 @@
 html, body {
   margin: 0;
   padding: 0;
-  color: #e6e6e6;
+  color: var(--text-primary); /* Usa la variabile per il colore del testo */
   height: 100%;
-  font-family: system-ui, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif; /* Font moderno */
+  background-color: var(--bg-app); /* Sfondo principale */
 }
 
 /* ============================
-   🎨 GLOBAL THEME (logo-based)
+   🎨 GLOBAL DARK THEME (Ispirato al Logo)
    ============================ */
 :root {
-  /* Background */
-  --bg-app: #000000;
-  --bg-panel: #0d0d0d;
+  /* --- SFONDI --- */
+  --bg-app: #0d0d0d;          /* Grigio scuro per il main content */
+  --bg-sidebar: #0a0a0a;      /* Nero per la sidebar (più scuro del main) */
+  --bg-hover: #1a1a1a;        /* Colore hover per elementi lista e pulsanti */
+  --bg-input: #1f1f1f;        /* Sfondo input box */
+  --bg-ai-bubble: transparent; /* Rimosso, come richiesto */
 
-  /* Chat bubbles */
-  --bubble-ai: transparent;
-  --bubble-user: #101820;
+  /* --- TESTO --- */
+  --text-primary: #e6e6e6;    /* Testo chiaro */
+  --text-secondary: #999999;  /* Grigio per etichette e testo secondario */
+  --text-on-brand: #ffffff;   /* Testo bianco su sfondi colorati brand */
 
-  /* Text */
-  --text-primary: #e6f0ff;
-  --text-secondary: #9ab3ff;
+  /* --- BORDI E DIVISORI --- */
+  --border-color: #27272a;    /* Bordo scuro sottile */
+  --border-focus: var(--brand-blue); /* Colore bordo al focus */
 
-  /* Input */
-  --input-bg: #0d1326;
-  --border-subtle: #1a2440;
-  --accent-glow: rgba(47, 93, 251, 0.4);
-
-  /* Brand (from logo) */
+  /* --- COLORI BRAND (Dal Logo) --- */
   --brand-blue: #2F5DFB;
   --brand-green: #4DD27F;
   --brand-lime: #A0FF28;
+  /* Gradiente Brand per bottoni e accenti */
+  --brand-gradient: linear-gradient(135deg, var(--brand-blue), var(--brand-green));
+
+  /* --- OMBRE --- */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.5);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
 }
 
 /* ============================
-   📝 MARKDOWN STYLES
+   📝 MARKDOWN STYLES (Adattati al tema scuro)
    ============================ */
 .markdown {
   font-size: 16px;
+  line-height: 1.7;
+  color: var(--text-primary);
 }
 
-.markdown p {
-  margin-bottom: 1em;
-}
+.markdown p { margin-bottom: 1em; }
 
 /* Inline code */
 .markdown code:not(pre code) {
-  background: rgba(255,255,255,0.1);
+  background: #1a1a1a; /* Sfondo scuro per codice inline */
   padding: 2px 6px;
   border-radius: 4px;
   font-family: 'Fira Code', monospace;
   font-size: 0.9em;
-  color: #ff7b72;
+  color: var(--brand-green); /* Colore brand per il codice */
+  border: 1px solid #27272a;
 }
 
 /* Code blocks */
 .markdown pre {
-  background: #0b0f1a;
+  background: #151515; /* Sfondo blocco codice scuro */
   padding: 16px;
-  border-radius: 6px;
+  border-radius: 8px;
   overflow-x: auto;
   margin: 16px 0;
-  border-left: 4px solid var(--brand-blue);
+  border: 1px solid #27272a;
+  border-left: 4px solid var(--brand-blue); /* Accento laterale */
 }
 
 .markdown pre code {
   font-family: 'Fira Code', monospace;
-  color: #d0e0ff;
+  color: #d0e0ff; /* Testo chiaro nel codice */
   font-size: 14px;
+  background: transparent;
+  padding: 0;
+  border: none;
 }
 
 /* Lists */
-.markdown ul, .markdown ol {
-  margin-left: 20px;
-  margin-bottom: 1em;
-}
-
-.markdown li {
-  margin-bottom: 6px;
-}
+.markdown ul, .markdown ol { margin-left: 20px; margin-bottom: 1em; }
+.markdown li { margin-bottom: 6px; }
 
 /* TABLES */
 .markdown table {
@@ -88,35 +93,29 @@ html, body {
   font-size: 14px;
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid #333;
+  border: 1px solid var(--border-color);
 }
-
-/* Header */
 .markdown th {
-  background: var(--brand-blue);
-  color: #fff;
+  background: #1a1a1a; /* Intestazione scura */
+  color: var(--text-primary);
   padding: 12px;
   text-align: left;
   font-weight: 600;
+  border-bottom: 2px solid var(--border-color);
 }
-
-/* Cells */
 .markdown td {
   padding: 12px;
-  background: #ffffff;
-  color: #000000;
-  border-top: 1px solid #ddd;
+  background: var(--bg-app);
+  color: var(--text-primary);
+  border-top: 1px solid var(--border-color);
 }
-
-/* Hover */
-.markdown tr:hover td {
-  background: #eef3ff;
-}
+.markdown tr:hover td { background: #1a1a1a; }
 
 .markdown img {
-  max-width: 600px;
+  max-width: 100%;
   height: auto;
   border-radius: 8px;
   display: block;
-  margin: 0 auto;
+  margin: 20px auto;
+  box-shadow: var(--shadow-sm);
 }

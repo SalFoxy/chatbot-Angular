@@ -28,13 +28,18 @@
 
     <div class="messages" #scrollContainer>
       <div *ngFor="let msg of messages()" class="msg" [ngClass]="msg.sender">
+        
+        <!-- Avatar, a sinistra per AI, a destra per User -->
         <div class="avatar" [ngClass]="msg.sender">
           {{ msg.sender === 'ai' ? '🤖' : '👤' }}
         </div>
+
+        <!-- Bubble/Contenuto. Per AI, la bubble è trasparente e contiene il markdown -->
         <div class="bubble">
           <markdown *ngIf="msg.sender === 'ai'" [data]="msg.text"></markdown>
           <span *ngIf="msg.sender === 'user'">{{ msg.text }}</span>
         </div>
+        
       </div>
     </div>
 
