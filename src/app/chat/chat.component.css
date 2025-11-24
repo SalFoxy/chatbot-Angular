@@ -1,172 +1,108 @@
-/* ============================
-   ✨ LAYOUT BASE & RESET
-   ============================ */
-* {
-  box-sizing: border-box;
+/* LAYOUT PRINCIPALE */
+.layout-wrapper {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  overflow: hidden;
 }
 
-.chat-wrapper {
-  height: 100vh;
+/* MAIN CONTENT */
+.main-content {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  background: var(--bg-app);
-  color: var(--text-primary);
-  font-family: 'Söhne', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   position: relative;
+  height: 100%;
+  transition: width 0.3s ease; /* Fluidità quando la sidebar si chiude */
 }
 
-/* ============================
-   💬 AREA MESSAGGI
-   ============================ */
+/* TOP BAR (Header sopra la chat) */
+.top-bar {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  position: absolute; /* Fluttua sopra i messaggi o sta fisso in alto */
+  top: 0; left: 0; right: 0;
+  z-index: 10;
+  /* background: transparent;  O colore se preferisci */ 
+}
+
+/* Bottone Toggle nella main area */
+.btn-toggle-main {
+  background: transparent;
+  border: none;
+  color: #9ab3ff; /* Colore secondario */
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+}
+.btn-toggle-main:hover {
+  background-color: #1f1f23;
+  color: white;
+}
+
+.brand-mobile {
+  margin-left: 12px;
+  font-weight: 600;
+  display: none; /* Nascosto su desktop */
+}
+
+/* MESSAGGI */
 .messages {
   flex: 1;
   overflow-y: auto;
-  padding: 2rem 1rem;
+  padding: 60px 20px 20px 20px; /* Padding top aumentato per non finire sotto il bottone */
   display: flex;
   flex-direction: column;
   gap: 24px;
-  scroll-behavior: smooth;
   width: 100%;
-  max-width: 900px;
+  max-width: 800px;
   margin: 0 auto;
 }
 
-/* Scrollbar */
-.messages::-webkit-scrollbar {
-  width: 8px;
-}
-.messages::-webkit-scrollbar-track {
-  background: transparent;
-}
-.messages::-webkit-scrollbar-thumb {
-  background-color: #333;
-  border-radius: 4px;
-}
-.messages::-webkit-scrollbar-thumb:hover {
-  background-color: #555;
-}
+.msg { display: flex; gap: 16px; width: 100%; line-height: 1.6; }
+.msg.user { flex-direction: row-reverse; }
 
-/* ============================
-   📨 STILE MESSAGGI
-   ============================ */
-.msg {
-  padding: 0;
-  font-size: 16px;
-  line-height: 1.6;
-  color: var(--text-primary);
-  animation: fadeIn 0.3s ease-out;
-  max-width: 85%;
+.avatar {
+  width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+  border-radius: 4px; flex-shrink: 0; font-size: 18px;
 }
+.avatar.ai { background: var(--brand-blue); border-radius: 50%; }
+.avatar.user { background: #333; border-radius: 50%; }
 
-/* AI message (left) */
-.msg.ai {
-  align-self: flex-start;
-  background: transparent;
-  padding-right: 10px;
-  width: 100%;
-}
-
-/* USER message (right) */
-.msg.user {
-  align-self: flex-end;
+.bubble { max-width: 85%; font-size: 16px; }
+.msg.user .bubble {
   background: linear-gradient(135deg, var(--brand-blue), var(--brand-green));
-  padding: 12px 20px;
-  border-radius: 20px;
-  border-top-right-radius: 4px;
-  max-width: 70%;
-  color: #fff;
+  padding: 10px 16px; border-radius: 18px; border-top-right-radius: 4px; color: white;
 }
+.msg.ai .bubble { background: transparent; color: var(--text-primary); }
 
-/* ============================
-   ⌨️ INPUT AREA
-   ============================ */
+/* INPUT */
 .input-box {
   padding: 20px;
   background: linear-gradient(to top, var(--bg-app) 80%, transparent);
-  display: flex;
-  justify-content: center;
-  position: relative;
-  z-index: 10;
+  display: flex; justify-content: center;
 }
-
 .input-container {
-  width: 100%;
-  max-width: 800px;
-  position: relative;
-  display: flex;
-  align-items: flex-end;
-  background: var(--input-bg);
-  border: 1px solid var(--border-subtle);
-  border-radius: 26px;
-  padding: 8px 10px 8px 20px;
-  box-shadow: 0 0 20px rgba(47,93,251,0.15);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%; max-width: 800px; background: var(--input-bg);
+  border: 1px solid var(--border-subtle); border-radius: 26px;
+  display: flex; align-items: center; padding: 8px 16px;
+}
+input { flex: 1; background: transparent; border: none; color: white; padding: 10px; outline: none; font-size: 16px; }
+button { background: transparent; color: white; border: none; width: 40px; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+button:disabled { opacity: 0.5; }
+
+/* MOBILE */
+.overlay {
+  display: none;
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6); z-index: 40;
 }
 
-.input-container:focus-within {
-  border-color: var(--brand-blue);
-  box-shadow: 0 0 25px rgba(47,93,251,0.4);
-}
-
-input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  color: var(--text-primary);
-  font-size: 16px;
-  padding: 12px 0;
-  max-height: 200px;
-  outline: none;
-}
-
-input::placeholder {
-  color: #566;
-}
-
-/* Send button */
-button {
-  background: #1d1d1d;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-left: 10px;
-}
-
-button:hover,
-button:not(:disabled):hover {
-  background: var(--brand-blue);
-}
-
-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* ============================
-   📱 RESPONSIVE
-   ============================ */
 @media (max-width: 768px) {
-  .messages {
-    padding: 1rem;
-    gap: 16px;
-  }
-  
-  .msg.user {
-    max-width: 85%;
-  }
-  
-  .input-box {
-    padding: 12px;
-  }
-  
-  .input-container {
-    padding: 6px 6px 6px 16px;
-  }
+  .brand-mobile { display: block; }
+  .overlay { display: block; }
 }

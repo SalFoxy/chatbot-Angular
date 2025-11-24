@@ -1,33 +1,58 @@
-<div class="chat-wrapper">
+<div class="layout-wrapper">
   
-  <div class="messages" #scrollContainer>
-    <div *ngFor="let msg of messages()" 
-         class="msg" 
-         [ngClass]="{'user': msg.sender === 'user', 'ai': msg.sender === 'ai'}">
-      
-      <markdown *ngIf="msg.sender === 'ai'" [data]="msg.text" class="markdown"></markdown>
-      <span *ngIf="msg.sender === 'user'">{{ msg.text }}</span>
-      
-    </div>
-  </div>
+  <app-sidebar
+    [history]="history()"
+    [currentSessionId]="currentSessionId()"
+    [isOpen]="isSidebarOpen()"
+    (onSelect)="loadChat($event)"
+    (onDelete)="handleDeleteChat($event)"
+    (onNewChat)="startNewChat()"
+    (onClose)="toggleSidebar()"
+  ></app-sidebar>
 
-  <div class="input-box">
-    <div class="input-container">
-      <input 
-        type="text" 
-        [disabled]="isLoading()"
-        [(ngModel)]="userInput" 
-        (keydown.enter)="sendMessage()"
-        placeholder="Scrivi un messaggio a LipariGPT..." 
-      />
+  <main class="main-content">
+    
+    <!-- TOP BAR: Visibile sempre, contiene il toggle sidebar -->
+    <div class="top-bar">
       
-      <button (click)="sendMessage()" [disabled]="!userInput() || isLoading()">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="12" y1="19" x2="12" y2="5"></line>
-          <polyline points="5 12 12 5 19 12"></polyline>
+      <!-- Tasto APRI/CHIUDI Sidebar (visibile se sidebar è chiusa o su mobile) -->
+      <button class="btn-toggle-main" (click)="toggleSidebar()" title="Mostra sidebar">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="9" y1="3" x2="9" y2="21"></line>
         </svg>
       </button>
-    </div>
-  </div>
 
+      <span class="brand-mobile">LipariGPT</span>
+    </div>
+
+    <div class="messages" #scrollContainer>
+      <div *ngFor="let msg of messages()" class="msg" [ngClass]="msg.sender">
+        <div class="avatar" [ngClass]="msg.sender">
+          {{ msg.sender === 'ai' ? '🤖' : '👤' }}
+        </div>
+        <div class="bubble">
+          <markdown *ngIf="msg.sender === 'ai'" [data]="msg.text"></markdown>
+          <span *ngIf="msg.sender === 'user'">{{ msg.text }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-box">
+      <div class="input-container">
+        <input 
+          type="text" 
+          #chatInput
+          [disabled]="isLoading()"
+          [(ngModel)]="userInput" 
+          (keydown.enter)="sendMessage()"
+          placeholder="Scrivi a LipariGPT..." 
+        />
+        <button (click)="sendMessage()" [disabled]="!userInput() || isLoading()">➤</button>
+      </div>
+    </div>
+
+    <!-- Overlay Mobile -->
+    <div class="overlay" *ngIf="isSidebarOpen()" (click)="toggleSidebar()"></div>
+  </main>
 </div>
