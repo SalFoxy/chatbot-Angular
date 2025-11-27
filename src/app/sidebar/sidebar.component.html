@@ -1,19 +1,21 @@
 <aside class="sidebar" [class.open]="isOpen">
   <div class="sidebar-header">
     <button class="btn-new-chat" (click)="onNewChat.emit()">
-      <i class="bi bi-plus-lg"></i> Nuova Chat
+      <i class="bi bi-plus-circle"></i> Nuova Chat
     </button>
   </div>
 
   <div class="history-list">
-    <div class="history-label">CRONOLOGIA</div>
+    <div class="history-label">
+      <i class="bi bi-clock-history"></i> CRONOLOGIA
+    </div>
     
     <div *ngFor="let session of history" 
          class="history-item" 
          [class.active]="session.id === currentSessionId"
          (click)="selectChat(session)">
       
-      <i class="bi bi-chat chat-icon"></i>
+      <i class="bi bi-chat-left-text chat-icon"></i>
       
       <!-- Titolo normale -->
       <span *ngIf="editingSessionId !== session.id" class="chat-title">
@@ -52,7 +54,8 @@
     </div>
 
     <div *ngIf="history.length === 0" class="empty-history">
-      Nessuna chat recente
+      <i class="bi bi-chat-square-dots"></i>
+      <p>Nessuna chat recente</p>
     </div>
   </div>
 </aside>

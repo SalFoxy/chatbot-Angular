@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MarkdownModule } from 'ngx-markdown';
 import { ChatService, ChatMessage, ChatRequest, ChatSession } from './chat.service';
-// IMPORTANTE: Importa la sidebar
 import { SidebarComponent } from '../sidebar/sidebar.component';
 
 @Component({
@@ -15,7 +14,6 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
 })
 export class ChatComponent implements OnInit, AfterViewInit {
 
-  // Usa inject() invece del costruttore per robustezza
   private chatService = inject(ChatService);
 
   messages = signal<ChatMessage[]>([]);
@@ -24,18 +22,20 @@ export class ChatComponent implements OnInit, AfterViewInit {
   
   userInput = signal('');
   isLoading = signal(false);
-  isSidebarOpen = signal(true); 
+  isSidebarOpen = signal(true);
+  
+  showScrollButton = false;
+  copiedIndex: number | null = null;
 
-  private readonly typingSpeedMs = 15; 
+  private readonly typingSpeedMs = 15;
 
-  @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
-  @ViewChild('chatInput') chatInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('scrollContainer') private scrollContainer! : ElementRef;
+  @ViewChild('chatInput') chatInput!: ElementRef<HTMLTextAreaElement>;
 
   ngOnInit() {
     this.loadHistory();
     this.checkMobile();
 
-    // Carica ultima chat o creane una nuova
     if (this.history().length > 0) {
       this.loadChat(this.history()[0]);
     } else {
@@ -59,6 +59,42 @@ export class ChatComponent implements OnInit, AfterViewInit {
     this.isSidebarOpen.update(v => !v);
   }
 
+  // --- SCROLL ---
+  onScroll() {
+    const el = this.scrollContainer?.nativeElement;
+    if (!el) return;
+    
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    this.showScrollButton = distanceFromBottom > 200;
+  }
+
+  scrollToBottom() {
+    setTimeout(() => {
+      const el = this.scrollContainer?.nativeElement;
+      if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+      this.showScrollButton = false;
+    }, 50);
+  }
+
+  // --- COPIA MESSAGGIO ---
+  copyMessage(text: string) {
+    navigator.clipboard.writeText(text).then(() => {
+      const index = this.messages().findIndex(m => m.text === text);
+      this.copiedIndex = index;
+      setTimeout(() => this.copiedIndex = null, 2000);
+    });
+  }
+
+  // --- KEYBOARD ---
+  // --- KEYBOARD ---
+  handleKeydown(event: KeyboardEvent) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+     event. preventDefault();
+     this.sendMessage();
+    }
+  }
+
+
   // --- LOGICA CHAT ---
 
   loadHistory() {
@@ -69,11 +105,21 @@ export class ChatComponent implements OnInit, AfterViewInit {
     const newId = crypto.randomUUID();
     this.currentSessionId.set(newId);
     this.messages.set([
-      { sender: 'ai', text: '👋 Ciao! Sono LipariGPT. Come posso aiutarti?' }
+      { sender: 'ai', text: '👋 Ciao! Sono LipariGPT.Come posso aiutarti?' }
     ]);
     
     if (window.innerWidth < 768) this.isSidebarOpen.set(false);
-    setTimeout(() => this.chatInput?.nativeElement?.focus(), 100);
+    setTimeout(() => {
+      this.chatInput?.nativeElement?.focus();
+      this.resetTextareaHeight();
+    }, 100);
+  }
+
+  resetTextareaHeight() {
+    const textarea = this.chatInput?.nativeElement;
+    if (textarea) {
+      textarea.style.height = 'auto';
+    }
   }
 
   loadChat(session: ChatSession) {
@@ -84,7 +130,7 @@ export class ChatComponent implements OnInit, AfterViewInit {
   }
 
   handleDeleteChat(id: string) {
-    if (!confirm("Vuoi eliminare questa conversazione?")) return;
+    if (! confirm("Vuoi eliminare questa conversazione?")) return;
 
     const newHistory = this.chatService.deleteSession(id);
     this.history.set(newHistory);
@@ -95,25 +141,34 @@ export class ChatComponent implements OnInit, AfterViewInit {
     }
   }
 
+  handleRenameChat(event: { id: string; newTitle: string }) {
+    const history = this.history();
+    const session = history.find(h => h.id === event.id);
+    
+    if (session) {
+      session.title = event.newTitle;
+      this.chatService.saveSession(session);
+      this.history.set([...history]);
+    }
+  }
+
   // --- INVIO & STREAMING ---
 
   sendMessage() {
     const text = this.userInput().trim();
     if (!text || this.isLoading()) return;
     
-    // 1. Aggiungi msg utente
     this.messages.update(m => [...m, { sender: 'user', text }]);
     this.userInput.set('');
+    this.resetTextareaHeight();
     this.scrollToBottom();
     this.isLoading.set(true);
 
-    // 2. Chiama API
     const payload: ChatRequest = { message: text, conversationId: this.currentSessionId() };
     this.streamAiResponse(payload);
   }
 
   async streamAiResponse(payload: ChatRequest) {
-    // Placeholder AI
     this.messages.update(m => [...m, { sender: 'ai', text: '' }]);
     const aiIndex = this.messages().length - 1;
 
@@ -121,15 +176,14 @@ export class ChatComponent implements OnInit, AfterViewInit {
     let displayedResponse = '';
     let isStreamComplete = false;
 
-    // Loop scrittura
     const typeWriterLoop = async () => {
       while (!isStreamComplete || displayedResponse.length < fullResponseBuffer.length) {
         if (displayedResponse.length < fullResponseBuffer.length) {
           displayedResponse += fullResponseBuffer[displayedResponse.length];
           this.messages.update(m => {
-             const newMsgs = [...m]; 
-             newMsgs[aiIndex] = { ...newMsgs[aiIndex], text: displayedResponse }; 
-             return newMsgs;
+            const newMsgs = [...m];
+            newMsgs[aiIndex] = { ...newMsgs[aiIndex], text: displayedResponse };
+            return newMsgs;
           });
           this.scrollToBottom();
           await new Promise(r => setTimeout(r, this.typingSpeedMs));
@@ -145,10 +199,10 @@ export class ChatComponent implements OnInit, AfterViewInit {
 
     try {
       await this.chatService.streamAnswer(payload, (chunk) => fullResponseBuffer += chunk);
-    } catch (e) { 
-      fullResponseBuffer += "\n[Errore di connessione]"; 
-    } finally { 
-      isStreamComplete = true; 
+    } catch (e) {
+      fullResponseBuffer += "\n[Errore di connessione]";
+    } finally {
+      isStreamComplete = true;
     }
   }
 
@@ -156,32 +210,22 @@ export class ChatComponent implements OnInit, AfterViewInit {
     const msgs = this.messages();
     if (msgs.length === 0) return;
     
-    // Crea titolo dal primo messaggio
-    const firstUserMsg = msgs.find(m => m.sender === 'user');
-    let title = firstUserMsg ? (firstUserMsg.text.substring(0, 30) + '...') : 'Nuova Chat';
+    const existingSession = this.history().find(h => h.id === this.currentSessionId());
+    
+    let title: string;
+    if (existingSession) {
+      title = existingSession.title;
+    } else {
+      const firstUserMsg = msgs.find(m => m.sender === 'user');
+      title = firstUserMsg ?  (firstUserMsg.text.substring(0, 30) + '...') : 'Nuova Chat';
+    }
     
     this.chatService.saveSession({
-      id: this.currentSessionId(), title, messages: msgs, timestamp: Date.now()
+      id: this.currentSessionId(),
+      title,
+      messages: msgs,
+      timestamp: Date.now()
     });
     this.loadHistory();
   }
-
-  private scrollToBottom() {
-    setTimeout(() => {
-      const el = this.scrollContainer?.nativeElement;
-      if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
-    }, 50);
-  }
-
-  // Aggiungi questo metodo nella classe ChatComponent
-  handleRenameChat(event: { id: string; newTitle: string }) {
-   const history = this.history();
-   const session = history. find(h => h.id === event. id);
-   
-   if (session) {
-     session.title = event. newTitle;
-     this.chatService.saveSession(session);
-     this.history. set([...history]); // Trigger reactivity
-   }
-}
 }

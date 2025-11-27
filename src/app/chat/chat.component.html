@@ -16,44 +16,63 @@
     <!-- TOP BAR -->
     <div class="top-bar">
       <button class="btn-toggle-main" (click)="toggleSidebar()" title="Mostra sidebar">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-          <line x1="9" y1="3" x2="9" y2="21"></line>
-        </svg>
+        <i class="bi bi-layout-sidebar"></i>
       </button>
-
       <span class="brand-mobile">LipariGPT</span>
     </div>
 
-    <div class="messages" #scrollContainer>
-      <div *ngFor="let msg of messages()" class="msg" [ngClass]="msg.sender">
+    <div class="messages" #scrollContainer (scroll)="onScroll()">
+      <div *ngFor="let msg of messages(); let i = index" class="msg" [ngClass]="msg.sender">
         
-        <!-- Avatar AI (solo per AI, a sinistra) -->
-        <div *ngIf="msg.sender === 'ai'" class="avatar ai">🤖</div>
+        <!-- Avatar AI -->
+        <div *ngIf="msg.sender === 'ai'" class="avatar ai">
+          <i class="bi bi-robot"></i>
+        </div>
 
         <!-- Bubble/Contenuto -->
         <div class="bubble">
           <markdown *ngIf="msg.sender === 'ai'" [data]="msg.text"></markdown>
           <span *ngIf="msg.sender === 'user'">{{ msg.text }}</span>
+          
+          <!-- Bottone Copia (solo per AI) -->
+          <button 
+            *ngIf="msg.sender === 'ai' && msg.text" 
+            class="btn-copy" 
+            (click)="copyMessage(msg.text)"
+            [title]="copiedIndex === i ? 'Copiato!' : 'Copia messaggio'">
+            <i [class]="copiedIndex === i ? 'bi bi-check-lg' : 'bi bi-clipboard'"></i>
+          </button>
         </div>
         
-        <!-- Avatar User (solo per User, a destra) -->
-        <div *ngIf="msg.sender === 'user'" class="avatar user">👤</div>
+        <!-- Avatar User -->
+        <div *ngIf="msg.sender === 'user'" class="avatar user">
+          <i class="bi bi-person-fill"></i>
+        </div>
         
       </div>
     </div>
 
+    <!-- Scroll to Bottom Button -->
+    <button 
+      class="btn-scroll-bottom" 
+      *ngIf="showScrollButton" 
+      (click)="scrollToBottom()">
+      <i class="bi bi-arrow-down"></i>
+    </button>
+
     <div class="input-box">
       <div class="input-container">
-        <input 
-          type="text" 
+        <textarea 
           #chatInput
           [disabled]="isLoading()"
-          [(ngModel)]="userInput" 
-          (keydown.enter)="sendMessage()"
-          placeholder="Scrivi a LipariGPT..." 
-        />
-        <button (click)="sendMessage()" [disabled]="! userInput() || isLoading()">➤</button>
+          [(ngModel)]="userInput"
+          (keydown)="handleKeydown($event)"
+          placeholder="Scrivi a LipariGPT..."
+          rows="1"
+        ></textarea>
+        <button (click)="sendMessage()" [disabled]="! userInput() || isLoading()">
+          <i class="bi bi-send-fill"></i>
+        </button>
       </div>
     </div>
 
