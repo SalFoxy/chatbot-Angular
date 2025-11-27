@@ -4,17 +4,20 @@ import { FormsModule } from '@angular/forms';
 import { MarkdownModule } from 'ngx-markdown';
 import { ChatService, ChatMessage, ChatRequest, ChatSession } from './chat.service';
 import { SidebarComponent } from '../sidebar/sidebar.component';
+import { ToastService } from '../shared/toast.service';
+import { ToastComponent } from '../shared/toast.component';
 
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule, MarkdownModule, FormsModule, SidebarComponent],
+  imports: [CommonModule, MarkdownModule, FormsModule, SidebarComponent, ToastComponent],
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.css'
 })
 export class ChatComponent implements OnInit, AfterViewInit {
 
   private chatService = inject(ChatService);
+  private toastService = inject(ToastService);
 
   messages = signal<ChatMessage[]>([]);
   history = signal<ChatSession[]>([]);
@@ -23,6 +26,7 @@ export class ChatComponent implements OnInit, AfterViewInit {
   userInput = signal('');
   isLoading = signal(false);
   isSidebarOpen = signal(true);
+  isDarkMode = signal(true);
   
   showScrollButton = false;
   copiedIndex: number | null = null;
@@ -33,6 +37,7 @@ export class ChatComponent implements OnInit, AfterViewInit {
   @ViewChild('chatInput') chatInput!: ElementRef<HTMLTextAreaElement>;
 
   ngOnInit() {
+    this.loadTheme();
     this.loadHistory();
     this.checkMobile();
 
@@ -78,14 +83,15 @@ export class ChatComponent implements OnInit, AfterViewInit {
 
   // --- COPIA MESSAGGIO ---
   copyMessage(text: string) {
-    navigator.clipboard.writeText(text).then(() => {
-      const index = this.messages().findIndex(m => m.text === text);
-      this.copiedIndex = index;
-      setTimeout(() => this.copiedIndex = null, 2000);
-    });
-  }
+  navigator.clipboard.writeText(text). then(() => {
+    const index = this.messages(). findIndex(m => m.text === text);
+    this. copiedIndex = index;
+    this.toastService.show('Copiato negli appunti!', 'success');
+    setTimeout(() => this. copiedIndex = null, 2000);
+  });
+}
 
-  // --- KEYBOARD ---
+
   // --- KEYBOARD ---
   handleKeydown(event: KeyboardEvent) {
     if (event.key === 'Enter' && !event.shiftKey) {
@@ -96,7 +102,6 @@ export class ChatComponent implements OnInit, AfterViewInit {
 
 
   // --- LOGICA CHAT ---
-
   loadHistory() {
     this.history.set(this.chatService.getHistory());
   }
@@ -130,16 +135,17 @@ export class ChatComponent implements OnInit, AfterViewInit {
   }
 
   handleDeleteChat(id: string) {
-    if (! confirm("Vuoi eliminare questa conversazione?")) return;
+  if (! confirm("Vuoi eliminare questa conversazione?")) return;
 
-    const newHistory = this.chatService.deleteSession(id);
-    this.history.set(newHistory);
+  const newHistory = this.chatService.deleteSession(id);
+  this.history.set(newHistory);
+  this.toastService.show('Chat eliminata', 'info');
 
-    if (this.currentSessionId() === id) {
-      if (newHistory.length > 0) this.loadChat(newHistory[0]);
-      else this.startNewChat();
-    }
+  if (this.currentSessionId() === id) {
+    if (newHistory.length > 0) this.loadChat(newHistory[0]);
+    else this. startNewChat();
   }
+}
 
   handleRenameChat(event: { id: string; newTitle: string }) {
     const history = this.history();
@@ -228,4 +234,28 @@ export class ChatComponent implements OnInit, AfterViewInit {
     });
     this.loadHistory();
   }
+
+  loadTheme() {
+  const savedTheme = localStorage.getItem('theme');
+  this.isDarkMode. set(savedTheme !== 'light');
+  this.applyTheme();
+}
+
+toggleTheme() {
+  this.isDarkMode.update(v => !v);
+  localStorage.setItem('theme', this.isDarkMode() ? 'dark' : 'light');
+  this.applyTheme();
+  this.toastService.show(
+    this.isDarkMode() ? 'Tema scuro attivato' : 'Tema chiaro attivato', 
+    'info'
+  );
+}
+
+applyTheme() {
+  if (this.isDarkMode()) {
+    document. documentElement.classList. remove('light');
+  } else {
+    document.documentElement. classList.add('light');
+  }
+}
 }

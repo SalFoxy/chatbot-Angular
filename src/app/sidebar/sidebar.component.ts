@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ElementRef, ViewChild, AfterViewChecked } from '@angular/core';
+import { Component, Input, Output, EventEmitter, AfterViewChecked, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChatSession } from '../chat/chat.service';
 
@@ -13,12 +13,14 @@ export class SidebarComponent implements AfterViewChecked {
   @Input() history: ChatSession[] = [];
   @Input() currentSessionId: string = '';
   @Input() isOpen: boolean = true;
+  @Input() isDarkMode: boolean = true;
 
   @Output() onSelect = new EventEmitter<ChatSession>();
   @Output() onDelete = new EventEmitter<string>();
   @Output() onRename = new EventEmitter<{ id: string; newTitle: string }>();
   @Output() onNewChat = new EventEmitter<void>();
   @Output() onClose = new EventEmitter<void>();
+  @Output() onThemeToggle = new EventEmitter<void>();
 
   openMenuId: string | null = null;
   editingSessionId: string | null = null;

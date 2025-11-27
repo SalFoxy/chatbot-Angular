@@ -17,12 +17,10 @@
       
       <i class="bi bi-chat-left-text chat-icon"></i>
       
-      <!-- Titolo normale -->
       <span *ngIf="editingSessionId !== session.id" class="chat-title">
         {{ session.title }}
       </span>
       
-      <!-- Input rinomina -->
       <input 
         *ngIf="editingSessionId === session.id"
         #renameInput
@@ -34,7 +32,6 @@
         (click)="$event.stopPropagation()"
       />
       
-      <!-- Menu 3 puntini -->
       <div class="menu-container" *ngIf="editingSessionId !== session.id">
         <button class="btn-menu" (click)="toggleMenu($event, session.id)">
           <i class="bi bi-three-dots-vertical"></i>
@@ -56,6 +53,18 @@
     <div *ngIf="history.length === 0" class="empty-history">
       <i class="bi bi-chat-square-dots"></i>
       <p>Nessuna chat recente</p>
+    </div>
+  </div>
+
+  <!-- FOOTER SIDEBAR -->
+  <div class="sidebar-footer">
+    <button class="footer-btn" (click)="onThemeToggle.emit()" title="Cambia tema">
+      <i class="bi" [class.bi-moon-fill]="! isDarkMode" [class.bi-sun-fill]="isDarkMode"></i>
+      <span>{{ isDarkMode ? 'Tema Chiaro' : 'Tema Scuro' }}</span>
+    </button>
+    <div class="footer-info">
+      <i class="bi bi-robot"></i>
+      <span>LipariGPT v1.0</span>
     </div>
   </div>
 </aside>

@@ -208,16 +208,41 @@
   box-shadow: var(--shadow-md);
   transition: all var(--transition-normal);
   z-index: 30;
+  animation: bounceIn 0.4s ease, pulse 2s ease-in-out infinite;
 }
 
 .btn-scroll-bottom:hover {
   background: var(--bg-hover);
   color: var(--text-primary);
   transform: translateX(-50%) scale(1.1);
+  animation: none;
 }
 
 .btn-scroll-bottom i {
   font-size: 18px;
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px) scale(0.8);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-5px) scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: var(--shadow-md);
+  }
+  50% {
+    box-shadow: var(--shadow-md), 0 0 0 8px rgba(47, 93, 251, 0.15);
+  }
 }
 
 /* ============================
@@ -252,8 +277,6 @@
 }
 
 /* TEXTAREA */
-/* TEXTAREA */
-/* TEXTAREA */
 textarea {
   flex: 1;
   background: transparent;
@@ -269,10 +292,6 @@ textarea {
   min-height: 24px;
   max-height: 150px;
   overflow-y: auto;
-}
-
-textarea::placeholder {
-  color: var(--text-secondary);
 }
 
 textarea::placeholder {

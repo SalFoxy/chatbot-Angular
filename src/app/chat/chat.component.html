@@ -1,15 +1,17 @@
 <div class="layout-wrapper">
   
   <app-sidebar
-    [history]="history()"
-    [currentSessionId]="currentSessionId()"
-    [isOpen]="isSidebarOpen()"
-    (onSelect)="loadChat($event)"
-    (onDelete)="handleDeleteChat($event)"
-    (onRename)="handleRenameChat($event)"
-    (onNewChat)="startNewChat()"
-    (onClose)="toggleSidebar()"
-  ></app-sidebar>
+  [history]="history()"
+  [currentSessionId]="currentSessionId()"
+  [isOpen]="isSidebarOpen()"
+  [isDarkMode]="isDarkMode()"
+  (onSelect)="loadChat($event)"
+  (onDelete)="handleDeleteChat($event)"
+  (onRename)="handleRenameChat($event)"
+  (onNewChat)="startNewChat()"
+  (onClose)="toggleSidebar()"
+  (onThemeToggle)="toggleTheme()"
+></app-sidebar>
 
   <main class="main-content">
     
@@ -79,4 +81,5 @@
     <!-- Overlay Mobile -->
     <div class="overlay" *ngIf="isSidebarOpen()" (click)="toggleSidebar()"></div>
   </main>
+  <app-toast></app-toast>
 </div>

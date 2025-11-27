@@ -320,3 +320,58 @@
 .empty-history p {
   margin: 0;
 }
+
+/* ============================
+   📎 FOOTER SIDEBAR
+   ============================ */
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.footer-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 16px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.footer-btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--brand-blue);
+}
+
+.footer-btn i {
+  font-size: 16px;
+  color: var(--brand-blue);
+}
+
+.footer-btn i.bi-sun-fill {
+  color: #fbbf24;
+}
+
+.footer-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.footer-info i {
+  font-size: 14px;
+}
