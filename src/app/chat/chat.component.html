@@ -32,7 +32,7 @@
         </div>
 
         <!-- Bubble/Contenuto -->
-        <div class="bubble">
+        <div class="bubble" [appCollapsibleSections]="msg.sender === 'ai'">
           <markdown *ngIf="msg.sender === 'ai'" [data]="msg.text"></markdown>
           <span *ngIf="msg.sender === 'user'">{{ msg.text }}</span>
           
