@@ -18,7 +18,6 @@ export class ChatComponent implements OnInit, AfterViewInit {
   // Usa inject() invece del costruttore per robustezza
   private chatService = inject(ChatService);
 
-  // Stato
   messages = signal<ChatMessage[]>([]);
   history = signal<ChatSession[]>([]);
   currentSessionId = signal<string>('');
@@ -173,4 +172,16 @@ export class ChatComponent implements OnInit, AfterViewInit {
       if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
     }, 50);
   }
+
+  // Aggiungi questo metodo nella classe ChatComponent
+  handleRenameChat(event: { id: string; newTitle: string }) {
+   const history = this.history();
+   const session = history. find(h => h.id === event. id);
+   
+   if (session) {
+     session.title = event. newTitle;
+     this.chatService.saveSession(session);
+     this.history. set([...history]); // Trigger reactivity
+   }
+}
 }

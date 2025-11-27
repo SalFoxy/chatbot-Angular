@@ -1,121 +1,306 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
+@import 'bootstrap-icons/font/bootstrap-icons.css';
 html, body {
   margin: 0;
   padding: 0;
-  color: var(--text-primary); /* Usa la variabile per il colore del testo */
+  color: var(--text-primary);
   height: 100%;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif; /* Font moderno */
-  background-color: var(--bg-app); /* Sfondo principale */
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-app);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ============================
-   🎨 GLOBAL DARK THEME (Ispirato al Logo)
+   🎨 GLOBAL DARK THEME (Tonalità Blu Confortevole)
    ============================ */
 :root {
-  /* --- SFONDI --- */
-  --bg-app: #0d0d0d;          /* Grigio scuro per il main content */
-  --bg-sidebar: #0a0a0a;      /* Nero per la sidebar (più scuro del main) */
-  --bg-hover: #1a1a1a;        /* Colore hover per elementi lista e pulsanti */
-  --bg-input: #1f1f1f;        /* Sfondo input box */
-  --bg-ai-bubble: transparent; /* Rimosso, come richiesto */
+  /* --- SFONDI (Tonalità blu scuro, più chiaro e confortevole) --- */
+  --bg-app: #1a1d24;
+  --bg-sidebar: #151820;
+  --bg-hover: #252a35;
+  --bg-input: #1e222b;
+  --bg-elevated: #222730;
 
   /* --- TESTO --- */
-  --text-primary: #e6e6e6;    /* Testo chiaro */
-  --text-secondary: #999999;  /* Grigio per etichette e testo secondario */
-  --text-on-brand: #ffffff;   /* Testo bianco su sfondi colorati brand */
+  --text-primary: #e4e8f0;
+  --text-secondary: #8a94a6;
+  --text-muted: #5c6478;
+  --text-on-brand: #ffffff;
 
   /* --- BORDI E DIVISORI --- */
-  --border-color: #27272a;    /* Bordo scuro sottile */
-  --border-focus: var(--brand-blue); /* Colore bordo al focus */
+  --border-color: #2d3343;
+  --border-focus: var(--brand-blue);
 
   /* --- COLORI BRAND (Dal Logo) --- */
   --brand-blue: #2F5DFB;
+  --brand-blue-light: #4a75ff;
   --brand-green: #4DD27F;
   --brand-lime: #A0FF28;
-  /* Gradiente Brand per bottoni e accenti */
   --brand-gradient: linear-gradient(135deg, var(--brand-blue), var(--brand-green));
 
   /* --- OMBRE --- */
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.5);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.35);
+  --shadow-glow-blue: 0 0 20px rgba(47, 93, 251, 0.25);
+
+  /* --- TRANSIZIONI --- */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 /* ============================
-   📝 MARKDOWN STYLES (Adattati al tema scuro)
+   🖱️ SCROLLBAR PERSONALIZZATA
    ============================ */
-.markdown {
-  font-size: 16px;
-  line-height: 1.7;
-  color: var(--text-primary);
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
 
-.markdown p { margin-bottom: 1em; }
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3a4155;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4a5568;
+}
+
+/* ============================
+   ✨ SELEZIONE TESTO
+   ============================ */
+::selection {
+  background: rgba(47, 93, 251, 0.4);
+  color: #fff;
+}
+
+/* ============================
+   📝 MARKDOWN STYLES
+   ============================ */
+.markdown {
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--text-primary);
+  letter-spacing: 0.01em;
+}
+
+.markdown p { 
+  margin-bottom: 1.2em; 
+}
+
+.markdown strong {
+  color: #fff;
+  font-weight: 600;
+}
+
+.markdown em {
+  color: var(--brand-green);
+  font-style: italic;
+}
+
+/* Headings */
+.markdown h1, .markdown h2, .markdown h3, .markdown h4 {
+  color: #fff;
+  margin-top: 1.5em;
+  margin-bottom: 0.75em;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.markdown h1 { font-size: 1.75em; }
+.markdown h2 { font-size: 1.5em; }
+.markdown h3 { font-size: 1.25em; }
+
+/* Links */
+.markdown a {
+  color: var(--brand-blue-light);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: var(--transition-fast);
+}
+
+.markdown a:hover {
+  color: var(--brand-lime);
+  border-bottom-color: var(--brand-lime);
+}
 
 /* Inline code */
 .markdown code:not(pre code) {
-  background: #1a1a1a; /* Sfondo scuro per codice inline */
-  padding: 2px 6px;
-  border-radius: 4px;
+  background: rgba(47, 93, 251, 0.15);
+  padding: 3px 8px;
+  border-radius: 6px;
   font-family: 'Fira Code', monospace;
-  font-size: 0.9em;
-  color: var(--brand-green); /* Colore brand per il codice */
-  border: 1px solid #27272a;
+  font-size: 0.88em;
+  color: var(--brand-green);
+  border: 1px solid rgba(47, 93, 251, 0.2);
 }
 
 /* Code blocks */
 .markdown pre {
-  background: #151515; /* Sfondo blocco codice scuro */
-  padding: 16px;
-  border-radius: 8px;
+  background: linear-gradient(180deg, #1e222b 0%, #181c24 100%);
+  padding: 20px;
+  border-radius: 12px;
   overflow-x: auto;
-  margin: 16px 0;
-  border: 1px solid #27272a;
-  border-left: 4px solid var(--brand-blue); /* Accento laterale */
+  margin: 20px 0;
+  border: 1px solid var(--border-color);
+  position: relative;
+  box-shadow: var(--shadow-md);
+}
+
+.markdown pre::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--brand-gradient);
+  border-radius: 12px 12px 0 0;
 }
 
 .markdown pre code {
   font-family: 'Fira Code', monospace;
-  color: #d0e0ff; /* Testo chiaro nel codice */
-  font-size: 14px;
+  color: #d4d4d4;
+  font-size: 13px;
+  line-height: 1.6;
   background: transparent;
   padding: 0;
   border: none;
 }
 
-/* Lists */
-.markdown ul, .markdown ol { margin-left: 20px; margin-bottom: 1em; }
-.markdown li { margin-bottom: 6px; }
+/* Blockquote */
+.markdown blockquote {
+  border-left: 4px solid var(--brand-blue);
+  background: rgba(47, 93, 251, 0.08);
+  margin: 20px 0;
+  padding: 16px 20px;
+  border-radius: 0 8px 8px 0;
+  color: var(--text-secondary);
+  font-style: italic;
+}
 
-/* TABLES */
+/* Lists */
+.markdown ul, .markdown ol { 
+  margin-left: 24px; 
+  margin-bottom: 1.2em; 
+}
+
+.markdown li { 
+  margin-bottom: 8px;
+  padding-left: 4px;
+}
+
+.markdown ul li::marker {
+  color: var(--brand-blue);
+}
+
+.markdown ol li::marker {
+  color: var(--brand-green);
+  font-weight: 600;
+}
+
+/* Horizontal Rule */
+.markdown hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+  margin: 32px 0;
+}
+
+/* ============================
+   📊 TABELLE MARKDOWN (Design migliorato)
+   ============================ */
 .markdown table {
   width: 100%;
-  border-collapse: collapse;
-  margin: 20px 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 24px 0;
   font-size: 14px;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
   border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+  background: var(--bg-elevated);
 }
+
+/* Header della tabella */
 .markdown th {
-  background: #1a1a1a; /* Intestazione scura */
-  color: var(--text-primary);
-  padding: 12px;
+  background: linear-gradient(135deg, #2a3040 0%, #252a38 100%);
+  color: #fff;
+  padding: 14px 18px;
   text-align: left;
   font-weight: 600;
-  border-bottom: 2px solid var(--border-color);
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.8px;
+  border-bottom: 2px solid var(--brand-blue);
+  position: relative;
 }
+
+/* Icona decorativa nell'header (opzionale) */
+.markdown th:first-child {
+  border-radius: 12px 0 0 0;
+}
+
+.markdown th:last-child {
+  border-radius: 0 12px 0 0;
+}
+
+/* Celle della tabella */
 .markdown td {
-  padding: 12px;
+  padding: 14px 18px;
   background: var(--bg-app);
   color: var(--text-primary);
-  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  transition: background var(--transition-fast);
 }
-.markdown tr:hover td { background: #1a1a1a; }
 
+/* Righe alternate (zebra striping) */
+.markdown tr:nth-child(even) td {
+  background: rgba(45, 51, 67, 0.3);
+}
+
+/* Hover sulle righe */
+.markdown tr:hover td {
+  background: rgba(47, 93, 251, 0.1);
+}
+
+/* Ultima riga senza bordo inferiore */
+.markdown tr:last-child td {
+  border-bottom: none;
+}
+
+.markdown tr:last-child td:first-child {
+  border-radius: 0 0 0 12px;
+}
+
+.markdown tr:last-child td:last-child {
+  border-radius: 0 0 12px 0;
+}
+
+/* Bordo sinistro colorato per la prima colonna */
+.markdown td:first-child {
+  border-left: 3px solid transparent;
+}
+
+.markdown tr:hover td:first-child {
+  border-left-color: var(--brand-blue);
+}
+
+/* Immagini */
 .markdown img {
   max-width: 100%;
   height: auto;
-  border-radius: 8px;
+  border-radius: 12px;
   display: block;
-  margin: 20px auto;
-  box-shadow: var(--shadow-sm);
+  margin: 24px auto;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
 }

@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 
-// --- INTERFACCE CONDIVISE ---
 export interface ChatMessage {
   sender: 'user' | 'ai';
   text: string;
