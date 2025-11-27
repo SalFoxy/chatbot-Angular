@@ -1,17 +1,17 @@
 <div class="layout-wrapper">
   
   <app-sidebar
-  [history]="history()"
-  [currentSessionId]="currentSessionId()"
-  [isOpen]="isSidebarOpen()"
-  [isDarkMode]="isDarkMode()"
-  (onSelect)="loadChat($event)"
-  (onDelete)="handleDeleteChat($event)"
-  (onRename)="handleRenameChat($event)"
-  (onNewChat)="startNewChat()"
-  (onClose)="toggleSidebar()"
-  (onThemeToggle)="toggleTheme()"
-></app-sidebar>
+    [history]="history()"
+    [currentSessionId]="currentSessionId()"
+    [isOpen]="isSidebarOpen()"
+    [isDarkMode]="isDarkMode()"
+    (onSelect)="loadChat($event)"
+    (onDelete)="handleDeleteChat($event)"
+    (onRename)="handleRenameChat($event)"
+    (onNewChat)="startNewChat()"
+    (onClose)="toggleSidebar()"
+    (onThemeToggle)="toggleTheme()"
+  ></app-sidebar>
 
   <main class="main-content">
     
@@ -32,25 +32,26 @@
         </div>
 
         <!-- Bubble/Contenuto -->
-        <div class="bubble" [appCollapsibleSections]="msg.sender === 'ai'">
+        <div class="bubble" [appCollapsibleSections]="msg. sender === 'ai' && ! shouldShowCard(msg.text)">
           
-          <!-- Se contiene :::polizza, usa il parser -->
-          <div *ngIf="msg.sender === 'ai' && hasSpecialCard(msg.text)" 
+          <!-- AI con card completa: usa parser -->
+          <div *ngIf="msg.sender === 'ai' && shouldUseParser(msg. text, i)" 
                [appMessageParser]="msg.text">
           </div>
           
-          <!-- Altrimenti usa markdown normale -->
-          <markdown *ngIf="msg.sender === 'ai' && !hasSpecialCard(msg.text)" 
-                    [data]="msg.text">
+          <!-- AI senza card o streaming: usa markdown -->
+          <markdown *ngIf="msg.sender === 'ai' && !shouldUseParser(msg.text, i)" 
+                    [data]="getVisibleText(msg.text, i)">
           </markdown>
           
+          <!-- User message -->
           <span *ngIf="msg.sender === 'user'">{{ msg.text }}</span>
           
           <!-- Bottone Copia -->
           <button 
             *ngIf="msg.sender === 'ai' && msg.text" 
             class="btn-copy" 
-            (click)="copyMessage(msg.text)"
+            (click)="copyMessage(msg. text)"
             [title]="copiedIndex === i ? 'Copiato!' : 'Copia messaggio'">
             <i [class]="copiedIndex === i ? 'bi bi-check-lg' : 'bi bi-clipboard'"></i>
           </button>

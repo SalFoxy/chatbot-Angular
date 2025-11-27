@@ -17,7 +17,7 @@ export class MessageParserDirective implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['appMessageParser']) {
-      this.parseMessage();
+      setTimeout(() => this.parseMessage(), 0);
     }
   }
 
@@ -26,77 +26,97 @@ export class MessageParserDirective implements OnChanges {
     this.cardRefs.forEach(ref => ref.destroy());
     this.cardRefs = [];
 
-    const text = this.appMessageParser;
+    const text = this.appMessageParser || '';
     
-    // Regex per trovare :::polizza ...:::
+    // Regex per trovare :::polizza ... :::
     const polizzaRegex = /:::polizza\s+([\s\S]*?):::/gi;
-    let match;
+    
+    const fragments: { type: 'text' | 'card', content: string, data?: PolizzaData }[] = [];
     let lastIndex = 0;
-    let resultHtml = '';
+    let match;
 
     while ((match = polizzaRegex.exec(text)) !== null) {
-      // Aggiungi testo prima della card
-      resultHtml += this.escapeHtml(text.substring(lastIndex, match.index));
+      // Testo prima della card
+      if (match.index > lastIndex) {
+        fragments.push({ 
+          type: 'text', 
+          content: text.substring(lastIndex, match.index) 
+        });
+      }
       
-      // Parsa i dati della polizza
+      // Card
       const polizzaData = this.parsePolizzaData(match[1]);
-      
-      // Aggiungi placeholder per la card
-      const cardId = `polizza-card-${Date.now()}-${Math.random()}`;
-      resultHtml += `<div id="${cardId}" class="card-placeholder"></div>`;
+      fragments.push({ 
+        type: 'card', 
+        content: '', 
+        data: polizzaData 
+      });
       
       lastIndex = match.index + match[0].length;
-
-      // Crea la card dopo il render
-      setTimeout(() => {
-        const placeholder = this.el.nativeElement.querySelector(`#${cardId}`);
-        if (placeholder) {
-          const cardRef = this.viewContainer.createComponent(PolizzaCardComponent);
-          cardRef.instance.data = polizzaData;
-          placeholder.appendChild(cardRef.location.nativeElement);
-          this.cardRefs.push(cardRef);
-        }
-      }, 0);
     }
 
-    // Aggiungi testo rimanente
-    resultHtml += this.escapeHtml(text.substring(lastIndex));
+    // Testo rimanente
+    if (lastIndex < text.length) {
+      fragments.push({ 
+        type: 'text', 
+        content: text.substring(lastIndex) 
+      });
+    }
 
-    this.el.nativeElement.innerHTML = resultHtml;
+    // Costruisci HTML
+    this.el.nativeElement.innerHTML = '';
+    
+    fragments.forEach((fragment, index) => {
+      if (fragment.type === 'text' && fragment.content.trim()) {
+        const textEl = document.createElement('p');
+        textEl.textContent = fragment.content.trim();
+        textEl.style.marginBottom = '12px';
+        this.el.nativeElement.appendChild(textEl);
+      } else if (fragment.type === 'card' && fragment.data) {
+        const cardRef = this.viewContainer.createComponent(PolizzaCardComponent);
+        cardRef.instance.data = fragment.data;
+        this.el.nativeElement.appendChild(cardRef.location.nativeElement);
+        this.cardRefs.push(cardRef);
+      }
+    });
   }
 
   private parsePolizzaData(content: string): PolizzaData {
     const data: PolizzaData = {};
     
-    // Pattern per estrarre chiave: valore
-    const patterns: { [key: string]: RegExp } = {
-      tipo: /tipo:\s*([^,\n]+?)(?=\s+\w+:|$)/i,
-      numero: /numero:\s*([^,\n]+?)(?=\s+\w+:|$)/i,
-      intestatario: /intestatario:\s*([^,\n]+?)(?=\s+\w+:|$)/i,
-      veicolo: /veicolo:\s*([^,\n]+?)(?=\s+\w+:|$)/i,
-      scadenza: /scadenza:\s*([^,\n]+?)(?=\s+\w+:|$)/i,
-      premio: /premio:\s*([^,\n]+?)(?=\s+\w+:|$)/i,
-      coperture: /coperture:\s*([^,\n]+?)(?=\s+stato:|$)/i,
-      stato: /stato:\s*(\w+)/i
-    };
-
-    for (const [key, regex] of Object.entries(patterns)) {
-      const match = content.match(regex);
+    // Normalizza: rimuovi newline extra
+    const normalized = content.replace(/\s+/g, ' ').trim();
+    
+    // Lista di campi da cercare (in ordine)
+    const fields = ['tipo', 'numero', 'intestatario', 'veicolo', 'scadenza', 'premio', 'coperture', 'stato'];
+    
+    for (let i = 0; i < fields.length; i++) {
+      const currentField = fields[i];
+      const nextField = fields[i + 1];
+      
+      let regex: RegExp;
+      if (nextField) {
+        // Cerca da "campo:" fino al prossimo "campo:"
+        regex = new RegExp(`${currentField}:\\s*(.+?)(?=\\s+${nextField}:|$)`, 'i');
+      } else {
+        // Ultimo campo: prendi tutto fino alla fine
+        regex = new RegExp(`${currentField}:\\s*(.+)$`, 'i');
+      }
+      
+      const match = normalized.match(regex);
       if (match) {
-        if (key === 'coperture') {
-          data.coperture = match[1].split(',').map(c => c.trim());
+        const value = match[1].trim();
+        
+        if (currentField === 'coperture') {
+          // Splitta per virgola
+          data.coperture = value.split(',').map(c => c.trim()).filter(c => c);
         } else {
-          (data as any)[key] = match[1].trim();
+          (data as any)[currentField] = value;
         }
       }
     }
-
+    
+    console.log('Parsed polizza data:', data); // Debug
     return data;
-  }
-
-  private escapeHtml(text: string): string {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
   }
 }

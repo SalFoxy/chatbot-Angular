@@ -9,13 +9,12 @@ import { ToastComponent } from '../shared/toast.component';
 import { CollapsibleSectionsDirective } from '../shared/collapsible-sections.directive';
 import { ModalService } from '../shared/modal.service';
 import { ModalComponent } from '../shared/modal.component';
-import { PolizzaCardComponent } from '../shared/polizza-card.component';
 import { MessageParserDirective } from '../shared/message-parser.directive';
 
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule, MarkdownModule, FormsModule, SidebarComponent, ToastComponent, CollapsibleSectionsDirective, ModalComponent, PolizzaCardComponent,MessageParserDirective],
+  imports: [CommonModule, MarkdownModule, FormsModule, SidebarComponent, ToastComponent, CollapsibleSectionsDirective, ModalComponent,MessageParserDirective],
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.css'
 })
@@ -277,5 +276,41 @@ applyTheme() {
 // Aggiungi questo metodo
 hasSpecialCard(text: string): boolean {
   return /:::polizza/i.test(text);
+}
+
+// Nasconde i blocchi :::polizza::: incompleti durante lo streaming
+getDisplayText(text: string): string {
+  // Se c'è un blocco :::polizza che non è ancora chiuso, nascondilo
+  const incompleteBlockRegex = /:::polizza(?:(?!:::).)*$/is;
+  return text.replace(incompleteBlockRegex, '');
+}
+
+// Controlla se il messaggio è completo (non sta più streamando)
+isMessageComplete(index: number): boolean {
+  return ! this.isLoading() || index !== this.messages().length - 1;
+}
+
+// Controlla se mostrare la card (blocco completo)
+shouldShowCard(text: string): boolean {
+  return /:::polizza[\s\S]*?:::/i.test(text);
+}
+
+// Controlla se mostrare il parser (messaggio completo con card)
+shouldUseParser(text: string, index: number): boolean {
+  return this.isMessageComplete(index) && this.shouldShowCard(text);
+}
+
+// Testo da mostrare (nasconde blocchi incompleti)
+getVisibleText(text: string, index: number): string {
+  if (this.isMessageComplete(index)) {
+    // Messaggio completo: se ha card, il parser gestirà tutto
+    if (this.shouldShowCard(text)) {
+      return text;
+    }
+    return text;
+  } else {
+    // Streaming in corso: nascondi blocchi incompleti
+    return this.getDisplayText(text);
+  }
 }
 }
