@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ElementRef, ViewChild } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ElementRef, ViewChild, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChatSession } from '../chat/chat.service';
 
@@ -9,7 +9,7 @@ import { ChatSession } from '../chat/chat.service';
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css'
 })
-export class SidebarComponent {
+export class SidebarComponent implements AfterViewChecked {
   @Input() history: ChatSession[] = [];
   @Input() currentSessionId: string = '';
   @Input() isOpen: boolean = true;
@@ -22,12 +22,21 @@ export class SidebarComponent {
 
   openMenuId: string | null = null;
   editingSessionId: string | null = null;
+  private needsFocus = false;
 
-  @ViewChild('renameInput') renameInput! : ElementRef<HTMLInputElement>;
+  @ViewChild('renameInput') renameInput: ElementRef<HTMLInputElement> | undefined;
+
+  ngAfterViewChecked() {
+    if (this.needsFocus && this.renameInput) {
+      this.renameInput.nativeElement.focus();
+      this.renameInput.nativeElement.select();
+      this.needsFocus = false;
+    }
+  }
 
   selectChat(session: ChatSession) {
     if (! this.editingSessionId) {
-      this.onSelect. emit(session);
+      this.onSelect.emit(session);
     }
   }
 
@@ -42,18 +51,14 @@ export class SidebarComponent {
 
   startRename(event: Event, session: ChatSession) {
     event.stopPropagation();
+    this.openMenuId = null;
     this.editingSessionId = session.id;
-    this. openMenuId = null;
-    
-    setTimeout(() => {
-      this.renameInput?. nativeElement?. focus();
-      this.renameInput?. nativeElement?.select();
-    }, 0);
+    this.needsFocus = true;
   }
 
   confirmRename(session: ChatSession, event: Event) {
     const input = event.target as HTMLInputElement;
-    const newTitle = input.value. trim();
+    const newTitle = input.value.trim();
     
     if (newTitle && newTitle !== session.title) {
       this.onRename.emit({ id: session.id, newTitle });

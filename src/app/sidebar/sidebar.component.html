@@ -1,6 +1,6 @@
 <aside class="sidebar" [class.open]="isOpen">
   <div class="sidebar-header">
-    <button class="btn-new-chat" (click)="onNewChat. emit()">
+    <button class="btn-new-chat" (click)="onNewChat.emit()">
       <i class="bi bi-plus-lg"></i> Nuova Chat
     </button>
   </div>
@@ -15,21 +15,25 @@
       
       <i class="bi bi-chat chat-icon"></i>
       
+      <!-- Titolo normale -->
       <span *ngIf="editingSessionId !== session.id" class="chat-title">
         {{ session.title }}
       </span>
+      
+      <!-- Input rinomina -->
       <input 
-        *ngIf="editingSessionId === session. id"
+        *ngIf="editingSessionId === session.id"
         #renameInput
         class="rename-input"
         [value]="session.title"
-        (blur)="confirmRename(session, $event)"
+        (blur)="cancelRename()"
         (keydown.enter)="confirmRename(session, $event)"
-        (keydown. escape)="cancelRename()"
+        (keydown.escape)="cancelRename()"
         (click)="$event.stopPropagation()"
       />
       
-      <div class="menu-container">
+      <!-- Menu 3 puntini -->
+      <div class="menu-container" *ngIf="editingSessionId !== session.id">
         <button class="btn-menu" (click)="toggleMenu($event, session.id)">
           <i class="bi bi-three-dots-vertical"></i>
         </button>
@@ -47,7 +51,7 @@
       </div>
     </div>
 
-    <div *ngIf="history. length === 0" class="empty-history">
+    <div *ngIf="history.length === 0" class="empty-history">
       Nessuna chat recente
     </div>
   </div>
