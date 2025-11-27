@@ -6,11 +6,16 @@ import { ChatService, ChatMessage, ChatRequest, ChatSession } from './chat.servi
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { ToastService } from '../shared/toast.service';
 import { ToastComponent } from '../shared/toast.component';
+import { CollapsibleSectionsDirective } from '../shared/collapsible-sections.directive';
+import { ModalService } from '../shared/modal.service';
+import { ModalComponent } from '../shared/modal.component';
+import { PolizzaCardComponent } from '../shared/polizza-card.component';
+import { MessageParserDirective } from '../shared/message-parser.directive';
 
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule, MarkdownModule, FormsModule, SidebarComponent, ToastComponent],
+  imports: [CommonModule, MarkdownModule, FormsModule, SidebarComponent, ToastComponent, CollapsibleSectionsDirective, ModalComponent, PolizzaCardComponent,MessageParserDirective],
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.css'
 })
@@ -18,6 +23,7 @@ export class ChatComponent implements OnInit, AfterViewInit {
 
   private chatService = inject(ChatService);
   private toastService = inject(ToastService);
+  private modalService = inject(ModalService); 
 
   messages = signal<ChatMessage[]>([]);
   history = signal<ChatSession[]>([]);
@@ -83,11 +89,11 @@ export class ChatComponent implements OnInit, AfterViewInit {
 
   // --- COPIA MESSAGGIO ---
   copyMessage(text: string) {
-  navigator.clipboard.writeText(text). then(() => {
-    const index = this.messages(). findIndex(m => m.text === text);
-    this. copiedIndex = index;
+  navigator.clipboard.writeText(text).then(() => {
+    const index = this.messages().findIndex(m => m.text === text);
+    this.copiedIndex = index;
     this.toastService.show('Copiato negli appunti!', 'success');
-    setTimeout(() => this. copiedIndex = null, 2000);
+    setTimeout(() => this.copiedIndex = null, 2000);
   });
 }
 
@@ -95,7 +101,7 @@ export class ChatComponent implements OnInit, AfterViewInit {
   // --- KEYBOARD ---
   handleKeydown(event: KeyboardEvent) {
     if (event.key === 'Enter' && !event.shiftKey) {
-     event. preventDefault();
+     event.preventDefault();
      this.sendMessage();
     }
   }
@@ -134,18 +140,27 @@ export class ChatComponent implements OnInit, AfterViewInit {
     this.scrollToBottom();
   }
 
-  handleDeleteChat(id: string) {
-  if (! confirm("Vuoi eliminare questa conversazione?")) return;
+  async handleDeleteChat(id: string) {
+    const confirmed = await this.modalService.confirm({
+      title: 'Elimina chat',
+      message: 'Vuoi eliminare questa conversazione?  Questa azione non può essere annullata.',
+      icon: 'bi-trash',
+      confirmText: 'Elimina',
+      cancelText: 'Annulla',
+      type: 'danger'
+    });
 
-  const newHistory = this.chatService.deleteSession(id);
-  this.history.set(newHistory);
-  this.toastService.show('Chat eliminata', 'info');
+    if (! confirmed) return;
 
-  if (this.currentSessionId() === id) {
-    if (newHistory.length > 0) this.loadChat(newHistory[0]);
-    else this. startNewChat();
+    const newHistory = this.chatService.deleteSession(id);
+    this.history.set(newHistory);
+    this.toastService.show('Chat eliminata', 'info');
+
+    if (this.currentSessionId() === id) {
+      if (newHistory.length > 0) this.loadChat(newHistory[0]);
+      else this.startNewChat();
+    }
   }
-}
 
   handleRenameChat(event: { id: string; newTitle: string }) {
     const history = this.history();
@@ -237,7 +252,7 @@ export class ChatComponent implements OnInit, AfterViewInit {
 
   loadTheme() {
   const savedTheme = localStorage.getItem('theme');
-  this.isDarkMode. set(savedTheme !== 'light');
+  this.isDarkMode.set(savedTheme !== 'light');
   this.applyTheme();
 }
 
@@ -253,9 +268,14 @@ toggleTheme() {
 
 applyTheme() {
   if (this.isDarkMode()) {
-    document. documentElement.classList. remove('light');
+    document.documentElement.classList.remove('light');
   } else {
-    document.documentElement. classList.add('light');
+    document.documentElement.classList.add('light');
   }
+}
+
+// Aggiungi questo metodo
+hasSpecialCard(text: string): boolean {
+  return /:::polizza/i.test(text);
 }
 }

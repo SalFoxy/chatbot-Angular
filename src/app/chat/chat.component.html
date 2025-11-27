@@ -33,10 +33,20 @@
 
         <!-- Bubble/Contenuto -->
         <div class="bubble" [appCollapsibleSections]="msg.sender === 'ai'">
-          <markdown *ngIf="msg.sender === 'ai'" [data]="msg.text"></markdown>
+          
+          <!-- Se contiene :::polizza, usa il parser -->
+          <div *ngIf="msg.sender === 'ai' && hasSpecialCard(msg.text)" 
+               [appMessageParser]="msg.text">
+          </div>
+          
+          <!-- Altrimenti usa markdown normale -->
+          <markdown *ngIf="msg.sender === 'ai' && !hasSpecialCard(msg.text)" 
+                    [data]="msg.text">
+          </markdown>
+          
           <span *ngIf="msg.sender === 'user'">{{ msg.text }}</span>
           
-          <!-- Bottone Copia (solo per AI) -->
+          <!-- Bottone Copia -->
           <button 
             *ngIf="msg.sender === 'ai' && msg.text" 
             class="btn-copy" 
@@ -82,4 +92,5 @@
     <div class="overlay" *ngIf="isSidebarOpen()" (click)="toggleSidebar()"></div>
   </main>
   <app-toast></app-toast>
+  <app-modal></app-modal>
 </div>

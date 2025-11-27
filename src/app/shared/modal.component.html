@@ -1,0 +1,29 @@
+<div class="modal-overlay" *ngIf="modalService.isOpen()" (click)="onOverlayClick($event)">
+  <div class="modal-container" [class]="modalService.config()?.type">
+    
+    <!-- Header -->
+    <div class="modal-header">
+      <div class="modal-icon" [class]="modalService.config()?.type">
+        <i [class]="'bi ' + modalService.config()?.icon"></i>
+      </div>
+      <h3 class="modal-title">{{ modalService.config()?.title }}</h3>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body">
+      <p>{{ modalService.config()?.message }}</p>
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="modalService.close(false)">
+        {{ modalService.config()?.cancelText }}
+      </button>
+      <button class="btn-confirm" [class]="modalService.config()?.type" (click)="modalService.close(true)">
+        <i [class]="'bi ' + getConfirmIcon()"></i>
+        {{ modalService.config()?.confirmText }}
+      </button>
+    </div>
+
+  </div>
+</div>
