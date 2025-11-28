@@ -1,0 +1,15 @@
+<div class="input-box">
+  <div class="input-container">
+    <textarea 
+      #chatInput
+      [disabled]="isLoading"
+      [(ngModel)]="userInput"
+      (keydown)="handleKeydown($event)"
+      placeholder="Scrivi a LipariGPT..."
+      rows="1"
+    ></textarea>
+    <button (click)="sendMessage()" [disabled]="! userInput.trim() || isLoading">
+      <i class="bi bi-send-fill"></i>
+    </button>
+  </div>
+</div>

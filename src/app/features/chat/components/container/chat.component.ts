@@ -1,57 +1,62 @@
 import { Component, signal, ViewChild, ElementRef, OnInit, AfterViewInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { MarkdownModule } from 'ngx-markdown';
 
 // Models
 import { ChatMessage, ChatRequest, ChatSession } from '../../models/chat.models';
 
 // Services
 import { ChatService } from '../../services/chat.service';
+import { ThemeService } from '../../../../core/services/theme.service';
 import { ToastService } from '../../../../shared/components/toast/toast.service';
 import { ModalService } from '../../../../shared/components/modal/modal.service';
 
 // Components
-import { SidebarComponent } from '../../../../features/sidebar/sidebar.component';
+import { SidebarComponent } from '../../../sidebar/sidebar.component';
 import { ToastComponent } from '../../../../shared/components/toast/toast.component';
 import { ModalComponent } from '../../../../shared/components/modal/modal.component';
-
-// Directives
-import { CollapsibleSectionsDirective } from '../../../../shared/directives/collapsible-sections.directive';
-import { MessageParserDirective } from '../../../../shared/directives/message-parser.directive';
+import { MessageBubbleComponent } from '../message-bubble/message-bubble.component';
+import { ChatInputComponent } from '../chat-input/chat-input.component';
 
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule, MarkdownModule, FormsModule, SidebarComponent, ToastComponent, CollapsibleSectionsDirective, ModalComponent,MessageParserDirective],
+  imports: [
+    CommonModule,
+    SidebarComponent,
+    ToastComponent,
+    ModalComponent,
+    MessageBubbleComponent,
+    ChatInputComponent
+  ],
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.css'
 })
 export class ChatComponent implements OnInit, AfterViewInit {
 
+  // Services
   private chatService = inject(ChatService);
+  private themeService = inject(ThemeService);
   private toastService = inject(ToastService);
-  private modalService = inject(ModalService); 
+  private modalService = inject(ModalService);
 
+  // State
   messages = signal<ChatMessage[]>([]);
   history = signal<ChatSession[]>([]);
   currentSessionId = signal<string>('');
-  
-  userInput = signal('');
   isLoading = signal(false);
   isSidebarOpen = signal(true);
-  isDarkMode = signal(true);
-  
   showScrollButton = false;
   copiedIndex: number | null = null;
 
   private readonly typingSpeedMs = 15;
 
-  @ViewChild('scrollContainer') private scrollContainer! : ElementRef;
-  @ViewChild('chatInput') chatInput!: ElementRef<HTMLTextAreaElement>;
+  @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
+  @ViewChild('chatInputComponent') chatInputComponent!: ChatInputComponent;
+
+  // Expose theme service
+  get isDarkMode() { return this.themeService.isDarkMode; }
 
   ngOnInit() {
-    this.loadTheme();
     this.loadHistory();
     this.checkMobile();
 
@@ -68,10 +73,18 @@ export class ChatComponent implements OnInit, AfterViewInit {
     this.scrollToBottom();
   }
 
-  // --- GESTIONE LAYOUT ---
+  // --- THEME ---
+  toggleTheme() {
+    this.themeService.toggleTheme();
+    this.toastService.show(
+      this.isDarkMode() ? 'Tema scuro attivato' : 'Tema chiaro attivato',
+      'info'
+    );
+  }
+
+  // --- LAYOUT ---
   checkMobile() {
-    if (window.innerWidth < 768) this.isSidebarOpen.set(false);
-    else this.isSidebarOpen.set(true);
+    this.isSidebarOpen.set(window.innerWidth >= 768);
   }
 
   toggleSidebar() {
@@ -81,7 +94,7 @@ export class ChatComponent implements OnInit, AfterViewInit {
   // --- SCROLL ---
   onScroll() {
     const el = this.scrollContainer?.nativeElement;
-    if (!el) return;
+    if (! el) return;
     
     const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
     this.showScrollButton = distanceFromBottom > 200;
@@ -95,27 +108,17 @@ export class ChatComponent implements OnInit, AfterViewInit {
     }, 50);
   }
 
-  // --- COPIA MESSAGGIO ---
-  copyMessage(text: string) {
-  navigator.clipboard.writeText(text).then(() => {
-    const index = this.messages().findIndex(m => m.text === text);
-    this.copiedIndex = index;
-    this.toastService.show('Copiato negli appunti!', 'success');
-    setTimeout(() => this.copiedIndex = null, 2000);
-  });
-}
-
-
-  // --- KEYBOARD ---
-  handleKeydown(event: KeyboardEvent) {
-    if (event.key === 'Enter' && !event.shiftKey) {
-     event.preventDefault();
-     this.sendMessage();
-    }
+  // --- COPY ---
+  handleCopy(text: string) {
+    navigator.clipboard.writeText(text).then(() => {
+      const index = this.messages().findIndex(m => m.text === text);
+      this.copiedIndex = index;
+      this.toastService.show('Copiato negli appunti!', 'success');
+      setTimeout(() => this.copiedIndex = null, 2000);
+    });
   }
 
-
-  // --- LOGICA CHAT ---
+  // --- CHAT SESSIONS ---
   loadHistory() {
     this.history.set(this.chatService.getHistory());
   }
@@ -128,17 +131,7 @@ export class ChatComponent implements OnInit, AfterViewInit {
     ]);
     
     if (window.innerWidth < 768) this.isSidebarOpen.set(false);
-    setTimeout(() => {
-      this.chatInput?.nativeElement?.focus();
-      this.resetTextareaHeight();
-    }, 100);
-  }
-
-  resetTextareaHeight() {
-    const textarea = this.chatInput?.nativeElement;
-    if (textarea) {
-      textarea.style.height = 'auto';
-    }
+    this.chatInputComponent?.focus();
   }
 
   loadChat(session: ChatSession) {
@@ -171,25 +164,19 @@ export class ChatComponent implements OnInit, AfterViewInit {
   }
 
   handleRenameChat(event: { id: string; newTitle: string }) {
-    const history = this.history();
-    const session = history.find(h => h.id === event.id);
-    
+    const session = this.history().find(h => h.id === event.id);
     if (session) {
       session.title = event.newTitle;
       this.chatService.saveSession(session);
-      this.history.set([...history]);
+      this.history.set([...this.history()]);
     }
   }
 
-  // --- INVIO & STREAMING ---
-
-  sendMessage() {
-    const text = this.userInput().trim();
-    if (!text || this.isLoading()) return;
+  // --- MESSAGING ---
+  handleSendMessage(text: string) {
+    if (this.isLoading()) return;
     
     this.messages.update(m => [...m, { sender: 'user', text }]);
-    this.userInput.set('');
-    this.resetTextareaHeight();
     this.scrollToBottom();
     this.isLoading.set(true);
 
@@ -240,14 +227,7 @@ export class ChatComponent implements OnInit, AfterViewInit {
     if (msgs.length === 0) return;
     
     const existingSession = this.history().find(h => h.id === this.currentSessionId());
-    
-    let title: string;
-    if (existingSession) {
-      title = existingSession.title;
-    } else {
-      const firstUserMsg = msgs.find(m => m.sender === 'user');
-      title = firstUserMsg ?  (firstUserMsg.text.substring(0, 30) + '...') : 'Nuova Chat';
-    }
+    const title = existingSession?.title || this.generateTitle(msgs);
     
     this.chatService.saveSession({
       id: this.currentSessionId(),
@@ -258,68 +238,8 @@ export class ChatComponent implements OnInit, AfterViewInit {
     this.loadHistory();
   }
 
-  loadTheme() {
-  const savedTheme = localStorage.getItem('theme');
-  this.isDarkMode.set(savedTheme !== 'light');
-  this.applyTheme();
-}
-
-toggleTheme() {
-  this.isDarkMode.update(v => !v);
-  localStorage.setItem('theme', this.isDarkMode() ? 'dark' : 'light');
-  this.applyTheme();
-  this.toastService.show(
-    this.isDarkMode() ? 'Tema scuro attivato' : 'Tema chiaro attivato', 
-    'info'
-  );
-}
-
-applyTheme() {
-  if (this.isDarkMode()) {
-    document.documentElement.classList.remove('light');
-  } else {
-    document.documentElement.classList.add('light');
+  private generateTitle(messages: ChatMessage[]): string {
+    const firstUserMsg = messages.find(m => m.sender === 'user');
+    return firstUserMsg ?  firstUserMsg.text.substring(0, 30) + '...' : 'Nuova Chat';
   }
-}
-
-// Aggiungi questo metodo
-hasSpecialCard(text: string): boolean {
-  return /:::polizza/i.test(text);
-}
-
-// Nasconde i blocchi :::polizza::: incompleti durante lo streaming
-getDisplayText(text: string): string {
-  // Se c'è un blocco :::polizza che non è ancora chiuso, nascondilo
-  const incompleteBlockRegex = /:::polizza(?:(?!:::).)*$/is;
-  return text.replace(incompleteBlockRegex, '');
-}
-
-// Controlla se il messaggio è completo (non sta più streamando)
-isMessageComplete(index: number): boolean {
-  return ! this.isLoading() || index !== this.messages().length - 1;
-}
-
-// Controlla se mostrare la card (blocco completo)
-shouldShowCard(text: string): boolean {
-  return /:::polizza[\s\S]*?:::/i.test(text);
-}
-
-// Controlla se mostrare il parser (messaggio completo con card)
-shouldUseParser(text: string, index: number): boolean {
-  return this.isMessageComplete(index) && this.shouldShowCard(text);
-}
-
-// Testo da mostrare (nasconde blocchi incompleti)
-getVisibleText(text: string, index: number): string {
-  if (this.isMessageComplete(index)) {
-    // Messaggio completo: se ha card, il parser gestirà tutto
-    if (this.shouldShowCard(text)) {
-      return text;
-    }
-    return text;
-  } else {
-    // Streaming in corso: nascondi blocchi incompleti
-    return this.getDisplayText(text);
-  }
-}
 }

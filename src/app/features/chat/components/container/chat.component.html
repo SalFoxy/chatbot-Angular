@@ -23,46 +23,17 @@
       <span class="brand-mobile">LipariGPT</span>
     </div>
 
+    <!-- MESSAGES -->
     <div class="messages" #scrollContainer (scroll)="onScroll()">
-      <div *ngFor="let msg of messages(); let i = index" class="msg" [ngClass]="msg.sender">
-        
-        <!-- Avatar AI -->
-        <div *ngIf="msg.sender === 'ai'" class="avatar ai">
-          <i class="bi bi-robot"></i>
-        </div>
-
-        <!-- Bubble/Contenuto -->
-        <div class="bubble" [appCollapsibleSections]="msg. sender === 'ai' && ! shouldShowCard(msg.text)">
-          
-          <!-- AI con card completa: usa parser -->
-          <div *ngIf="msg.sender === 'ai' && shouldUseParser(msg. text, i)" 
-               [appMessageParser]="msg.text">
-          </div>
-          
-          <!-- AI senza card o streaming: usa markdown -->
-          <markdown *ngIf="msg.sender === 'ai' && !shouldUseParser(msg.text, i)" 
-                    [data]="getVisibleText(msg.text, i)">
-          </markdown>
-          
-          <!-- User message -->
-          <span *ngIf="msg.sender === 'user'">{{ msg.text }}</span>
-          
-          <!-- Bottone Copia -->
-          <button 
-            *ngIf="msg.sender === 'ai' && msg.text" 
-            class="btn-copy" 
-            (click)="copyMessage(msg. text)"
-            [title]="copiedIndex === i ? 'Copiato!' : 'Copia messaggio'">
-            <i [class]="copiedIndex === i ? 'bi bi-check-lg' : 'bi bi-clipboard'"></i>
-          </button>
-        </div>
-        
-        <!-- Avatar User -->
-        <div *ngIf="msg.sender === 'user'" class="avatar user">
-          <i class="bi bi-person-fill"></i>
-        </div>
-        
-      </div>
+      <app-message-bubble
+        *ngFor="let msg of messages(); let i = index"
+        [message]="msg"
+        [index]="i"
+        [isLoading]="isLoading()"
+        [isCopied]="copiedIndex === i"
+        [totalMessages]="messages().length"
+        (onCopy)="handleCopy($event)"
+      ></app-message-bubble>
     </div>
 
     <!-- Scroll to Bottom Button -->
@@ -73,25 +44,17 @@
       <i class="bi bi-arrow-down"></i>
     </button>
 
-    <div class="input-box">
-      <div class="input-container">
-        <textarea 
-          #chatInput
-          [disabled]="isLoading()"
-          [(ngModel)]="userInput"
-          (keydown)="handleKeydown($event)"
-          placeholder="Scrivi a LipariGPT..."
-          rows="1"
-        ></textarea>
-        <button (click)="sendMessage()" [disabled]="! userInput() || isLoading()">
-          <i class="bi bi-send-fill"></i>
-        </button>
-      </div>
-    </div>
+    <!-- INPUT -->
+    <app-chat-input
+      #chatInputComponent
+      [isLoading]="isLoading()"
+      (onSend)="handleSendMessage($event)"
+    ></app-chat-input>
 
     <!-- Overlay Mobile -->
     <div class="overlay" *ngIf="isSidebarOpen()" (click)="toggleSidebar()"></div>
   </main>
+  
   <app-toast></app-toast>
   <app-modal></app-modal>
 </div>

@@ -1,0 +1,39 @@
+<div class="msg" [ngClass]="message.sender">
+  
+  <!-- Avatar AI -->
+  <div *ngIf="message.sender === 'ai'" class="avatar ai">
+    <i class="bi bi-robot"></i>
+  </div>
+
+  <!-- Bubble/Contenuto -->
+  <div class="bubble" [appCollapsibleSections]="message.sender === 'ai' && ! shouldShowCard(message.text)">
+    
+    <!-- AI con card completa: usa parser -->
+    <div *ngIf="message.sender === 'ai' && shouldUseParser()" 
+         [appMessageParser]="message.text">
+    </div>
+    
+    <!-- AI senza card o streaming: usa markdown -->
+    <markdown *ngIf="message.sender === 'ai' && !shouldUseParser()" 
+              [data]="getVisibleText()">
+    </markdown>
+    
+    <!-- User message -->
+    <span *ngIf="message.sender === 'user'">{{ message.text }}</span>
+    
+    <!-- Bottone Copia -->
+    <button 
+      *ngIf="message.sender === 'ai' && message.text" 
+      class="btn-copy" 
+      (click)="copyMessage()"
+      [title]="isCopied ? 'Copiato!' : 'Copia messaggio'">
+      <i [class]="isCopied ? 'bi bi-check-lg' : 'bi bi-clipboard'"></i>
+    </button>
+  </div>
+  
+  <!-- Avatar User -->
+  <div *ngIf="message.sender === 'user'" class="avatar user">
+    <i class="bi bi-person-fill"></i>
+  </div>
+  
+</div>
