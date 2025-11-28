@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { ChatComponent } from './chat/chat.component';
+import { ChatComponent } from './features/chat/components/container/chat.component';
 
 export const routes: Routes = [
   {

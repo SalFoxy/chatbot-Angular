@@ -4,10 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { MarkdownModule } from 'ngx-markdown';
 import { ChatService, ChatMessage, ChatRequest, ChatSession } from './chat.service';
 import { SidebarComponent } from '../sidebar/sidebar.component';
-import { ToastService } from '../shared/toast.service';
+import { ToastService } from '../../../../shared/services/toast.service';
 import { ToastComponent } from '../shared/toast.component';
-import { CollapsibleSectionsDirective } from '../shared/collapsible-sections.directive';
-import { ModalService } from '../shared/modal.service';
+import { CollapsibleSectionsDirective } from '../../../../shared/directives/collapsible-sections.directive';
+import { ModalService } from '../../../../shared/services/modal.service';
 import { ModalComponent } from '../shared/modal.component';
 import { MessageParserDirective } from '../shared/message-parser.directive';
 
