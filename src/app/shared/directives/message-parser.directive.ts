@@ -1,5 +1,5 @@
 import { Directive, ElementRef, Input, OnChanges, SimpleChanges, ViewContainerRef, ComponentRef } from '@angular/core';
-import { PolizzaCardComponent, PolizzaData } from './polizza-card.component';
+import { PolizzaCardComponent, PolizzaData } from '../../features/chat/cards/polizza-card/polizza-card.component';
 
 @Directive({
   selector: '[appMessageParser]',

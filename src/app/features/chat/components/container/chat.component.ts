@@ -2,14 +2,23 @@ import { Component, signal, ViewChild, ElementRef, OnInit, AfterViewInit, inject
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MarkdownModule } from 'ngx-markdown';
-import { ChatService, ChatMessage, ChatRequest, ChatSession } from './chat.service';
-import { SidebarComponent } from '../sidebar/sidebar.component';
-import { ToastService } from '../../../../shared/services/toast.service';
-import { ToastComponent } from '../shared/toast.component';
+
+// Models
+import { ChatMessage, ChatRequest, ChatSession } from '../../models/chat.models';
+
+// Services
+import { ChatService } from '../../services/chat.service';
+import { ToastService } from '../../../../shared/components/toast/toast.service';
+import { ModalService } from '../../../../shared/components/modal/modal.service';
+
+// Components
+import { SidebarComponent } from '../../../../features/sidebar/sidebar.component';
+import { ToastComponent } from '../../../../shared/components/toast/toast.component';
+import { ModalComponent } from '../../../../shared/components/modal/modal.component';
+
+// Directives
 import { CollapsibleSectionsDirective } from '../../../../shared/directives/collapsible-sections.directive';
-import { ModalService } from '../../../../shared/services/modal.service';
-import { ModalComponent } from '../shared/modal.component';
-import { MessageParserDirective } from '../shared/message-parser.directive';
+import { MessageParserDirective } from '../../../../shared/directives/message-parser.directive';
 
 @Component({
   selector: 'app-chat',

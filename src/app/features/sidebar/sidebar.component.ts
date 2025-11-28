@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, AfterViewChecked, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ChatSession } from '../chat/chat.service';
+import { ChatSession } from '../chat/models/chat.models'
 
 @Component({
   selector: 'app-sidebar',

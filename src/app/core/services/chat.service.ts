@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ChatRequest, ChatSession, ChatMessage } from '../models/chat.models';
+import { ChatRequest, ChatSession, ChatMessage } from '../../features/chat/models/chat.models';
 
 // Re-export per retrocompatibilità
 export { ChatRequest, ChatSession, ChatMessage };
