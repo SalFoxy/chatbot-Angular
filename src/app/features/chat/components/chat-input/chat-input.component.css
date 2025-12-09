@@ -1,7 +1,6 @@
 .input-box {
   padding: 16px 24px 24px;
   background: var(--bg-main);
-  border-top: 1px solid var(--border-color);
 }
 
 .input-container {
@@ -16,16 +15,20 @@
   padding: 12px 16px;
 }
 
-textarea {
+.input-container textarea {
   flex: 1;
   border: none;
   background: transparent;
-  resize: none;
+  resize: none;                /* Impedisce il resize manuale! */
   font-family: inherit;
   font-size: 15px;
   line-height: 1.5;
+  padding: 0;
+  box-sizing: border-box;
+  max-height: 150px;           /* Altezza massima! */
+  min-height: 36px;            /* Altezza minima! */
+  height: 36px;                /* Altezza di partenza */
   color: var(--text-primary);
-  max-height: 150px;
   outline: none;
 }
 

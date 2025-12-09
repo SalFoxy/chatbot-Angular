@@ -4,6 +4,7 @@
       #chatInput
       [disabled]="isLoading"
       [(ngModel)]="userInput"
+      (input)="autogrow(chatInput)"
       (keydown)="handleKeydown($event)"
       placeholder="Scrivi a LipariGPT..."
       rows="1"

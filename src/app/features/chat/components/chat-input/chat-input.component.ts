@@ -46,4 +46,10 @@ export class ChatInputComponent {
       this.resetTextareaHeight();
     }, 100);
   }
+
+autogrow(textarea: HTMLTextAreaElement) {
+  textarea.style.height = '36px'; // altezza minima
+  const newHeight = Math.min(textarea.scrollHeight, 150); // max 150px
+  textarea.style.height = newHeight + 'px';
+}
 }
