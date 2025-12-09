@@ -1,3 +1,4 @@
+
 <div class="msg" [ngClass]="message.sender">
   
   <!-- Avatar AI -->
@@ -5,6 +6,7 @@
     <i class="bi bi-robot"></i>
   </div>
 
+  
   <!-- Bubble/Contenuto -->
   <div class="bubble" [appCollapsibleSections]="message.sender === 'ai' && ! shouldShowCard(message.text)">
     
@@ -17,6 +19,8 @@
     <markdown *ngIf="message.sender === 'ai' && !shouldUseParser()" 
               [data]="getVisibleText()">
     </markdown>
+
+    
     
     <!-- User message -->
     <span *ngIf="message.sender === 'user'">{{ message.text }}</span>
@@ -31,9 +35,6 @@
     </button>
   </div>
   
-  <!-- Avatar User -->
-  <div *ngIf="message.sender === 'user'" class="avatar user">
-    <i class="bi bi-person-fill"></i>
-  </div>
+
   
 </div>
