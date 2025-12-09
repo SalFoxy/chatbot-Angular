@@ -108,7 +108,7 @@ export class MessageParserDirective implements OnChanges {
       
       let regex: RegExp;
       if (nextField) {
-        regex = new RegExp(`${currentField}:\\s*(.+?)(? =\\s+${nextField}:|$)`, 'i');
+        regex = new RegExp(`${currentField}:\\s*(.+?)(?=\\s+${nextField}:|$)`, 'i');
       } else {
         regex = new RegExp(`${currentField}:\\s*(.+)$`, 'i');
       }

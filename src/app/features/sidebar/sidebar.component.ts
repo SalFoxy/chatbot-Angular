@@ -1,11 +1,12 @@
 import { Component, Input, Output, EventEmitter, AfterViewChecked, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChatSession } from '../chat/models/chat.models'
+import { AccountInfoComponent } from '../account-info/account-info.component';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, AccountInfoComponent],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css'
 })
@@ -14,6 +15,7 @@ export class SidebarComponent implements AfterViewChecked {
   @Input() currentSessionId: string = '';
   @Input() isOpen: boolean = true;
   @Input() isDarkMode: boolean = true;
+  
 
   @Output() onSelect = new EventEmitter<ChatSession>();
   @Output() onDelete = new EventEmitter<string>();
@@ -27,6 +29,12 @@ export class SidebarComponent implements AfterViewChecked {
   private needsFocus = false;
 
   @ViewChild('renameInput') renameInput: ElementRef<HTMLInputElement> | undefined;
+
+  user = {
+  name: 'Mario Rossi',
+  email: 'mario.rossi@example.com'
+};
+// oppure, se recuperi dal backend, imposta dopo login
 
   ngAfterViewChecked() {
     if (this.needsFocus && this.renameInput) {

@@ -58,15 +58,16 @@
 
   <!-- FOOTER SIDEBAR -->
   <div class="sidebar-footer">
-    <button class="footer-btn" (click)="onThemeToggle.emit()" title="Cambia tema">
-      <i class="bi" [class.bi-moon-fill]="! isDarkMode" [class.bi-sun-fill]="isDarkMode"></i>
-      <span>{{ isDarkMode ? 'Tema Chiaro' : 'Tema Scuro' }}</span>
-    </button>
-    <div class="footer-info">
-      <i class="bi bi-robot"></i>
-      <span>LipariGPT v1.0</span>
-    </div>
+    <app-account-info [user]="user"></app-account-info>
+  <button class="footer-btn" (click)="onThemeToggle.emit()" title="Cambia tema">
+    <i class="bi" [class.bi-moon-fill]="!isDarkMode" [class.bi-sun-fill]="isDarkMode"></i>
+    <span>{{ isDarkMode ? 'Tema Chiaro' : 'Tema Scuro' }}</span>
+  </button>
+  <div class="footer-info">
+    <i class="bi bi-robot"></i>
+    <span>LipariGPT v1.0</span>
   </div>
+</div>
 </aside>
 
 <div class="menu-overlay" *ngIf="openMenuId" (click)="closeMenu()"></div>

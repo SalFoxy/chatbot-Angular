@@ -1,0 +1,8 @@
+<div class="account-info" (click)="openMenu = !openMenu" [attr.aria-expanded]="openMenu">
+  <div class="avatar">{{ getInitials(user?.name) }}</div>
+  <span class="username">{{ user?.name || 'Account' }}</span>
+  <span class="icon">▼</span>
+  <div class="account-menu" *ngIf="openMenu">
+    <button (click)="onLogout()" class="logout">Logout</button>
+  </div>
+</div>

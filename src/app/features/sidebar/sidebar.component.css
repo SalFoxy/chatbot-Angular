@@ -325,10 +325,12 @@
    📎 FOOTER SIDEBAR
    ============================ */
 .sidebar-footer {
-  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  align-items: center;      /* <-- CENTRA TUTTO RISPETTO ALLA SIDEBAR */
+  justify-content: flex-start;
+  gap: 8px;                /* Spazio tra i figli */
+  padding: 18px 0 12px 0;  /* Margini alto/basso, NO sinistra/destra */
 }
 
 .footer-btn {
@@ -373,4 +375,9 @@
 
 .footer-info i {
   font-size: 14px;
+}
+
+.sidebar-footer app-account-info {
+  margin-bottom: 12px;
+  display: block;
 }
