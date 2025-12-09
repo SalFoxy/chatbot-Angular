@@ -23,12 +23,13 @@ export class MessageBubbleComponent {
 
   // --- CARD HELPERS ---
   hasSpecialCard(text: string): boolean {
-    return /:::polizza/i.test(text);
+  return /:::(polizza|alert)/i.test(text);
   }
 
   getDisplayText(text: string): string {
-    const incompleteBlockRegex = /:::polizza(?:(?! :::).)*$/is;
-    return text.replace(incompleteBlockRegex, '');
+  // Nasconde blocchi incompleti
+  const incompleteBlockRegex = /:::(polizza|alert)(?:(?!:::).)*$/is;
+  return text.replace(incompleteBlockRegex, '');
   }
 
   isMessageComplete(): boolean {
@@ -36,7 +37,7 @@ export class MessageBubbleComponent {
   }
 
   shouldShowCard(text: string): boolean {
-    return /:::polizza[\s\S]*? :::/i.test(text);
+  return /:::(polizza|alert)[\s\S]*?:::/i.test(text);
   }
 
   shouldUseParser(): boolean {

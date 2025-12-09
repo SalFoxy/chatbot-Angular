@@ -1,5 +1,6 @@
 import { Directive, ElementRef, Input, OnChanges, SimpleChanges, ViewContainerRef, ComponentRef } from '@angular/core';
 import { PolizzaCardComponent, PolizzaData } from '../../features/chat/cards/polizza-card/polizza-card.component';
+import { AlertCardComponent, AlertData } from '../../features/chat/cards/alert-card/alert-card.component';
 
 @Directive({
   selector: '[appMessageParser]',
@@ -8,7 +9,7 @@ import { PolizzaCardComponent, PolizzaData } from '../../features/chat/cards/pol
 export class MessageParserDirective implements OnChanges {
   @Input() appMessageParser: string = '';
 
-  private cardRefs: ComponentRef<PolizzaCardComponent>[] = [];
+  private cardRefs: ComponentRef<any>[] = [];
 
   constructor(
     private el: ElementRef,
@@ -28,15 +29,15 @@ export class MessageParserDirective implements OnChanges {
 
     const text = this.appMessageParser || '';
     
-    // Regex per trovare :::polizza ... :::
-    const polizzaRegex = /:::polizza\s+([\s\S]*?):::/gi;
+    // Regex per trovare tutti i blocchi
+    const blockRegex = /:::(polizza|alert)\s+([\s\S]*?):::/gi;
     
-    const fragments: { type: 'text' | 'card', content: string, data?: PolizzaData }[] = [];
+    const fragments: { type: 'text' | 'polizza' | 'alert', content: string, data?: any }[] = [];
     let lastIndex = 0;
     let match;
 
-    while ((match = polizzaRegex.exec(text)) !== null) {
-      // Testo prima della card
+    while ((match = blockRegex.exec(text)) !== null) {
+      // Testo prima del blocco
       if (match.index > lastIndex) {
         fragments.push({ 
           type: 'text', 
@@ -44,12 +45,21 @@ export class MessageParserDirective implements OnChanges {
         });
       }
       
-      // Card
-      const polizzaData = this.parsePolizzaData(match[1]);
+      const blockType = match[1].toLowerCase() as 'polizza' | 'alert';
+      const blockContent = match[2];
+      
+      // Parsa i dati in base al tipo
+      let data: any;
+      if (blockType === 'polizza') {
+        data = this.parsePolizzaData(blockContent);
+      } else if (blockType === 'alert') {
+        data = this.parseAlertData(blockContent);
+      }
+      
       fragments.push({ 
-        type: 'card', 
+        type: blockType, 
         content: '', 
-        data: polizzaData 
+        data 
       });
       
       lastIndex = match.index + match[0].length;
@@ -66,14 +76,19 @@ export class MessageParserDirective implements OnChanges {
     // Costruisci HTML
     this.el.nativeElement.innerHTML = '';
     
-    fragments.forEach((fragment, index) => {
+    fragments.forEach((fragment) => {
       if (fragment.type === 'text' && fragment.content.trim()) {
         const textEl = document.createElement('p');
         textEl.textContent = fragment.content.trim();
         textEl.style.marginBottom = '12px';
         this.el.nativeElement.appendChild(textEl);
-      } else if (fragment.type === 'card' && fragment.data) {
+      } else if (fragment.type === 'polizza' && fragment.data) {
         const cardRef = this.viewContainer.createComponent(PolizzaCardComponent);
+        cardRef.instance.data = fragment.data;
+        this.el.nativeElement.appendChild(cardRef.location.nativeElement);
+        this.cardRefs.push(cardRef);
+      } else if (fragment.type === 'alert' && fragment.data) {
+        const cardRef = this.viewContainer.createComponent(AlertCardComponent);
         cardRef.instance.data = fragment.data;
         this.el.nativeElement.appendChild(cardRef.location.nativeElement);
         this.cardRefs.push(cardRef);
@@ -83,11 +98,8 @@ export class MessageParserDirective implements OnChanges {
 
   private parsePolizzaData(content: string): PolizzaData {
     const data: PolizzaData = {};
-    
-    // Normalizza: rimuovi newline extra
     const normalized = content.replace(/\s+/g, ' ').trim();
     
-    // Lista di campi da cercare (in ordine)
     const fields = ['tipo', 'numero', 'intestatario', 'veicolo', 'scadenza', 'premio', 'coperture', 'stato'];
     
     for (let i = 0; i < fields.length; i++) {
@@ -96,10 +108,8 @@ export class MessageParserDirective implements OnChanges {
       
       let regex: RegExp;
       if (nextField) {
-        // Cerca da "campo:" fino al prossimo "campo:"
-        regex = new RegExp(`${currentField}:\\s*(.+?)(?=\\s+${nextField}:|$)`, 'i');
+        regex = new RegExp(`${currentField}:\\s*(.+?)(? =\\s+${nextField}:|$)`, 'i');
       } else {
-        // Ultimo campo: prendi tutto fino alla fine
         regex = new RegExp(`${currentField}:\\s*(.+)$`, 'i');
       }
       
@@ -108,7 +118,6 @@ export class MessageParserDirective implements OnChanges {
         const value = match[1].trim();
         
         if (currentField === 'coperture') {
-          // Splitta per virgola
           data.coperture = value.split(',').map(c => c.trim()).filter(c => c);
         } else {
           (data as any)[currentField] = value;
@@ -116,7 +125,32 @@ export class MessageParserDirective implements OnChanges {
       }
     }
     
-    console.log('Parsed polizza data:', data); // Debug
+    return data;
+  }
+
+  private parseAlertData(content: string): AlertData {
+    const data: AlertData = {};
+    const normalized = content.replace(/\s+/g, ' ').trim();
+    
+    const fields = ['tipo', 'titolo', 'messaggio', 'azione'];
+    
+    for (let i = 0; i < fields.length; i++) {
+      const currentField = fields[i];
+      const nextField = fields[i + 1];
+      
+      let regex: RegExp;
+      if (nextField) {
+        regex = new RegExp(`${currentField}:\\s*(.+?)(?=\\s+${nextField}:|$)`, 'i');
+      } else {
+        regex = new RegExp(`${currentField}:\\s*(.+)$`, 'i');
+      }
+      
+      const match = normalized.match(regex);
+      if (match) {
+        (data as any)[currentField] = match[1].trim();
+      }
+    }
+    
     return data;
   }
 }
